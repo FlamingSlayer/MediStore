@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upload Prescription - MediStore</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+  <!-- Header/Navigation -->
+  <header class="header" id="main-header">
+    <div class="container">
+      <div class="header-inner">
+        <a href="index.html" class="logo">
+          <div class="logo-icon"><i class="fas fa-pills"></i></div>
+          <span class="logo-text">MediStore</span>
+        </a>
+        
+        <button class="mobile-menu-btn" id="mobileMenuBtn">
+          <i class="fas fa-bars"></i>
+        </button>
+        
+        <nav class="nav-links" id="navLinks">
+          <a href="index.html" class="nav-link">Home</a>
+          <a href="products.html" class="nav-link">Shop</a>
+          <a href="dashboard.html" class="nav-link">Dashboard</a>
+        </nav>
+        
+        <div class="header-controls">
+          <button class="theme-toggle" id="themeToggle" title="Toggle dark mode">
+            <i class="fas fa-moon"></i>
+          </button>
+          
+          <div id="guest-nav" style="display: flex; gap: 8px;">
+            <a href="login.html" class="btn btn-outline">Login</a>
+            <a href="register.html" class="btn btn-primary">Sign Up</a>
+          </div>
+
+          <div id="user-nav" style="display: none;">
+            <span class="user-greeting">Hi, <span id="user-name">User</span></span>
+            <a href="dashboard.html" class="btn btn-primary">Dashboard</a>
+            <button id="logoutBtn" class="btn-logout" title="Logout">
+              <i class="fas fa-sign-out-alt"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Breadcrumb -->
+    <section class="breadcrumb">
+      <div class="container">
+        <a href="index.html">Home</a> / <span>Upload Prescription</span>
+      </div>
+    </section>
+
+    <div class="container">
+      <div style="max-width: 600px; margin: 40px auto;">
+        <h1>Upload Your Prescription</h1>
+        <p style="color: var(--text-light); margin-bottom: 40px;">
+          Upload your medical prescription to purchase Rx medicines. We verify all prescriptions to ensure safe and legal medicine delivery.
+        </p>
+
+        <form id="prescriptionForm">
+          <div class="form-group">
+            <label for="medicine_name">Medicine Name</label>
+            <input 
+              type="text" 
+              id="medicine_name" 
+              name="medicine_name" 
+              required 
+              placeholder="Enter medicine name(s)"
+            >
+            <small>Separate multiple medicines with comma</small>
+          </div>
+
+          <div class="form-group">
+            <label for="prescription_file">Prescription File</label>
+            <div id="fileUploadArea" style="border: 2px dashed var(--border); border-radius: 10px; padding: 40px; text-align: center; cursor: pointer; transition: var(--transition); background-color: var(--bg-gray);">
+              <i class="fas fa-cloud-upload-alt" style="font-size: 3rem; color: var(--primary); margin-bottom: 15px; display: block;"></i>
+              <p style="margin: 0 0 10px; font-weight: 600; color: var(--text-dark);">
+                Drop your prescription here or click to browse
+              </p>
+              <p style="margin: 0; font-size: 0.875rem; color: var(--text-lighter);">
+                Supported formats: PDF, JPG, PNG (Max 5MB)
+              </p>
+              <input 
+                type="file" 
+                id="prescription_file" 
+                name="prescription_file" 
+                accept=".pdf,.jpg,.jpeg,.png" 
+                required 
+                style="display: none;"
+              >
+            </div>
+            <div id="fileInfo" style="margin-top: 15px; display: none;">
+              <p style="margin: 0; color: var(--success); display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-check-circle"></i>
+                <span id="fileName"></span>
+              </p>
+              <button type="button" onclick="clearFile()" style="margin-top: 10px;" class="btn btn-sm btn-outline">
+                Choose Different File
+              </button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="notes">Additional Notes (Optional)</label>
+            <textarea 
+              id="notes" 
+              name="notes" 
+              placeholder="Any special instructions or details about your prescription..."
+              style="resize: vertical; min-height: 100px;"
+            ></textarea>
+          </div>
+
+          <div class="info-box">
+            <i class="fas fa-info-circle"></i>
+            <div>
+              <strong>Important:</strong>
+              <ul style="margin: 10px 0 0; padding-left: 20px;">
+                <li>Prescription must be legible and issued by a valid doctor</li>
+                <li>Maximum file size is 5MB</li>
+                <li>Prescription validity is typically 6 months from issue date</li>
+              </ul>
+            </div>
+          </div>
+
+          <div id="errorMessage" class="error-message" style="display: none;"></div>
+          <div id="successMessage" class="success-message" style="display: none;"></div>
+
+          <button type="submit" class="btn btn-primary btn-lg btn-full">
+            <span id="btnText"><i class="fas fa-upload"></i> Upload Prescription</span>
+            <span id="btnSpinner" style="display: none;">
+              <i class="fas fa-spinner fa-spin"></i>
+            </span>
+          </button>
+        </form>
+
+        <!-- Recent Prescriptions (For logged-in users) -->
+        <div id="recentPrescriptions" style="margin-top: 60px; display: none;">
+          <h2 style="margin-bottom: 20px;">Your Prescriptions</h2>
+          <div id="prescriptionsList">
+            <!-- Loaded by JavaScript -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-col">
+          <h4>About MediStore</h4>
+          <p>Your trusted online pharmacy for quality medicines and healthcare products.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Quick Links</h4>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="products.html">Products</a></li>
+            <li><a href="#">About</a></li>
+            <li><a href="#">Contact</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Contact Info</h4>
+          <p><i class="fas fa-phone"></i> +91-XXXXX-XXXXX</p>
+          <p><i class="fas fa-envelope"></i> support@medistore.com</p>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 MediStore. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/static/js/config.js"></script>
+  <script src="/static/js/init.js"></script>
+  <script src="/static/js/app.js"></script>
+  <script>
+    let selectedFile = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      setupThemeToggle();
+      setupMobileMenu();
+      checkAuth();
+      setupFileUpload();
+      document.getElementById('prescriptionForm').addEventListener('submit', handleUpload);
+      loadUserPrescriptions();
+    });
+
+    function setupFileUpload() {
+      const fileUploadArea = document.getElementById('fileUploadArea');
+      const fileInput = document.getElementById('prescription_file');
+
+      // Click to browse
+      fileUploadArea.addEventListener('click', () => fileInput.click());
+
+      // Drag and drop
+      fileUploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        fileUploadArea.style.borderColor = 'var(--primary)';
+        fileUploadArea.style.backgroundColor = 'rgba(79, 70, 229, 0.05)';
+      });
+
+      fileUploadArea.addEventListener('dragleave', () => {
+        fileUploadArea.style.borderColor = 'var(--border)';
+        fileUploadArea.style.backgroundColor = 'var(--bg-gray)';
+      });
+
+      fileUploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        fileUploadArea.style.borderColor = 'var(--border)';
+        fileUploadArea.style.backgroundColor = 'var(--bg-gray)';
+
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+          handleFileSelect(files[0]);
+        }
+      });
+
+      // File input change
+      fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+          handleFileSelect(e.target.files[0]);
+        }
+      });
+    }
+
+    function handleFileSelect(file) {
+      // Validate file type
+      const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png'];
+      if (!allowedTypes.includes(file.type)) {
+        document.getElementById('errorMessage').textContent = 'Only PDF, JPG, and PNG files are allowed';
+        document.getElementById('errorMessage').style.display = 'block';
+        return;
+      }
+
+      // Validate file size (5MB)
+      const maxSize = 5 * 1024 * 1024;
+      if (file.size > maxSize) {
+        document.getElementById('errorMessage').textContent = 'File size must be less than 5MB';
+        document.getElementById('errorMessage').style.display = 'block';
+        return;
+      }
+
+      selectedFile = file;
+      
+      // Show file info
+      document.getElementById('fileUploadArea').style.display = 'none';
+      document.getElementById('fileInfo').style.display = 'block';
+      document.getElementById('fileName').textContent = file.name + ` (${(file.size / 1024 / 1024).toFixed(2)}MB)`;
+      document.getElementById('errorMessage').style.display = 'none';
+    }
+
+    function clearFile() {
+      selectedFile = null;
+      document.getElementById('prescription_file').value = '';
+      document.getElementById('fileUploadArea').style.display = 'block';
+      document.getElementById('fileInfo').style.display = 'none';
+    }
+
+    async function handleUpload(e) {
+      e.preventDefault();
+
+      if (!localStorage.getItem(TOKEN_KEY)) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      if (!selectedFile) {
+        document.getElementById('errorMessage').textContent = 'Please select a file';
+        document.getElementById('errorMessage').style.display = 'block';
+        return;
+      }
+
+      const medicineName = document.getElementById('medicine_name').value;
+      const notes = document.getElementById('notes').value;
+
+      const formData = new FormData();
+      formData.append('medicine_name', medicineName);
+      formData.append('prescription_file', selectedFile);
+      if (notes) {
+        formData.append('notes', notes);
+      }
+
+      document.getElementById('errorMessage').style.display = 'none';
+      document.getElementById('successMessage').style.display = 'none';
+      document.getElementById('btnText').style.display = 'none';
+      document.getElementById('btnSpinner').style.display = 'inline';
+
+      try {
+        const result = await uploadPrescription(formData);
+
+        if (result.success) {
+          document.getElementById('successMessage').textContent = 'Prescription uploaded successfully! We will verify it shortly.';
+          document.getElementById('successMessage').style.display = 'block';
+          document.getElementById('prescriptionForm').reset();
+          clearFile();
+          
+          setTimeout(() => {
+            loadUserPrescriptions();
+          }, 2000);
+        } else {
+          throw new Error(result.error);
+        }
+      } catch (error) {
+        document.getElementById('errorMessage').textContent = error.message || 'Failed to upload prescription';
+        document.getElementById('errorMessage').style.display = 'block';
+      } finally {
+        document.getElementById('btnText').style.display = 'inline';
+        document.getElementById('btnSpinner').style.display = 'none';
+      }
+    }
+
+    async function loadUserPrescriptions() {
+      if (!localStorage.getItem(TOKEN_KEY)) return;
+
+      try {
+        const result = await getPrescriptions();
+        if (result.success && result.data.length > 0) {
+          const prescriptions = result.data;
+          const html = prescriptions.map(pres => `
+            <div style="border: 1px solid var(--border); padding: 20px; border-radius: 10px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <h4 style="margin: 0 0 5px; color: var(--text-dark);">${pres.medicine_name}</h4>
+                <p style="margin: 0; font-size: 0.875rem; color: var(--text-light);">Uploaded: ${formatDate(pres.uploaded_at)}</p>
+              </div>
+              <a href="${pres.prescription_file}" download class="btn btn-sm btn-outline">
+                <i class="fas fa-download"></i> Download
+              </a>
+            </div>
+          `).join('');
+
+          document.getElementById('prescriptionsList').innerHTML = html;
+          document.getElementById('recentPrescriptions').style.display = 'block';
+        }
+      } catch (error) {
+        reportClientError('Error loading prescriptions', error, 'Unable to load your prescriptions.');
+      }
+    }
+  </script>
+</body>
+</html>

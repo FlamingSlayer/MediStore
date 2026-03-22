@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Success - MediStore</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+  <!-- Header/Navigation -->
+  <header class="header" id="main-header">
+    <div class="container">
+      <div class="header-inner">
+        <a href="index.html" class="logo">
+          <div class="logo-icon"><i class="fas fa-pills"></i></div>
+          <span class="logo-text">MediStore</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <div style="text-align: center; padding: 80px 20px;">
+        <div style="margin-bottom: 30px;">
+          <i class="fas fa-check-circle" style="font-size: 80px; color: var(--success);"></i>
+        </div>
+        
+        <h1 style="color: var(--text-dark); margin-bottom: 10px;">Order Confirmed!</h1>
+        <p style="font-size: 1.1rem; color: var(--text-light); margin-bottom: 30px;">
+          Thank you for your order. Your medicines will be delivered soon.
+        </p>
+
+        <div id="orderDetails" style="background: var(--bg-gray); padding: 30px; border-radius: 10px; max-width: 500px; margin: 0 auto 40px;">
+          <!-- Loaded by JavaScript -->
+        </div>
+
+        <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+          <a href="dashboard.html" class="btn btn-primary">
+            <i class="fas fa-chart-bar"></i> View Orders
+          </a>
+          <a href="products.html" class="btn btn-outline">
+            <i class="fas fa-shopping-cart"></i> Continue Shopping
+          </a>
+        </div>
+
+        <p style="margin-top: 40px; color: var(--text-lighter);">
+          A confirmation email has been sent to your registered email address.
+        </p>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-col">
+          <h4>About MediStore</h4>
+          <p>Your trusted online pharmacy for quality medicines and healthcare products.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Quick Links</h4>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="products.html">Products</a></li>
+            <li><a href="#">About</a></li>
+            <li><a href="#">Contact</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Contact Info</h4>
+          <p><i class="fas fa-phone"></i> +91-XXXXX-XXXXX</p>
+          <p><i class="fas fa-envelope"></i> support@medistore.com</p>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 MediStore. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/static/js/config.js"></script>
+  <script src="/static/js/init.js"></script>
+  <script src="/static/js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      setupThemeToggle();
+      setupMobileMenu();
+      checkAuth();
+      
+      const urlParams = new URLSearchParams(window.location.search);
+      const orderId = urlParams.get('order_id');
+
+      if (!orderId) {
+        document.getElementById('orderDetails').innerHTML = '<p>Order ID not found</p>';
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/orders/${orderId}/`, {
+          headers: getAuthHeader()
+        });
+
+        if (response.ok) {
+          const order = await response.json();
+          displayOrderDetails(order);
+        }
+      } catch (error) {
+        reportClientError('Error loading order success details', error, 'Unable to load order details.');
+      }
+    });
+
+    function displayOrderDetails(order) {
+      const html = `
+        <p style="margin-bottom: 15px;">
+          <strong>Order ID:</strong> <span style="font-size: 1.2rem; color: var(--primary);">#${order.id}</span>
+        </p>
+        <p style="margin-bottom: 15px;">
+          <strong>Order Date:</strong> ${formatDate(order.placed_at)}
+        </p>
+        <p style="margin-bottom: 15px;">
+          <strong>Total Amount:</strong> <span style="font-size: 1.5rem; color: var(--primary); font-weight: 700;">₹${order.total_amount}</span>
+        </p>
+        <p style="margin-bottom: 15px;">
+          <strong>Status:</strong> <span class="status-badge status-${order.status}" style="display: inline-block;">${order.status.toUpperCase()}</span>
+        </p>
+        <p style="margin: 0;">
+          <strong>Items:</strong> ${order.items.length} item(s)
+        </p>
+      `;
+      document.getElementById('orderDetails').innerHTML = html;
+    }
+  </script>
+</body>
+</html>

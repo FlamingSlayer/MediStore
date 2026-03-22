@@ -1,0 +1,205 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - MediStore</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="/static/css/styles.css">
+  <link rel="manifest" href="/static/manifest.json">
+</head>
+<body>
+  <!-- Simple Header -->
+  <header class="header">
+    <div class="container">
+      <a href="index.html" class="logo">
+        <div class="logo-icon"><i class="fas fa-pills"></i></div>
+        <span class="logo-text">MediStore</span>
+      </a>
+    </div>
+  </header>
+
+  <main class="auth-container">
+    <div class="auth-card">
+      <div class="auth-header">
+        <h1>Welcome Back</h1>
+        <p>Sign in to your MediStore account</p>
+      </div>
+
+      <form id="loginForm" class="auth-form">
+        <div class="form-group">
+          <label for="username">Email or Username</label>
+          <input 
+            type="text" 
+            id="username" 
+            name="username" 
+            required 
+            placeholder="Enter your email or username"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input 
+            type="password" 
+            id="password" 
+            name="password" 
+            required 
+            placeholder="Enter your password"
+          >
+          <a href="/password-reset/" class="forgot-link">Forgot password?</a>
+        </div>
+
+        <div id="errorMessage" class="error-message" style="display: none;"></div>
+        <div id="successMessage" class="success-message" style="display: none;"></div>
+
+        <button type="submit" class="btn btn-primary btn-full btn-lg">
+          <span id="btnText">Sign In</span>
+          <span id="btnSpinner" style="display: none;">
+            <i class="fas fa-spinner fa-spin"></i>
+          </span>
+        </button>
+      </form>
+
+      <div class="auth-divider">
+        <span>New to MediStore?</span>
+      </div>
+
+      <a href="register.html" class="btn btn-outline btn-full btn-lg">
+        Create New Account
+      </a>
+
+      <div class="auth-footer">
+        <p>By signing in, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></p>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-col">
+          <div class="logo" style="margin-bottom: 1.5rem; text-decoration: none;">
+            <div class="logo-icon"><i class="fas fa-pills"></i></div>
+            <span class="logo-text" style="color: white;">MediStore</span>
+          </div>
+          <p style="color: rgba(255,255,255,0.8); line-height: 1.8; margin-bottom: 1.5rem;">Your trusted online pharmacy for quality medicines and healthcare products. Available 24/7.</p>
+          <div style="display: flex; gap: 1rem;">
+            <a href="https://www.facebook.com" class="social-link"><i class="fab fa-facebook-f"></i></a>
+            <a href="https://twitter.com" class="social-link"><i class="fab fa-twitter"></i></a>
+            <a href="https://linkedin.com/vidhyanjha" class="social-link"><i class="fab fa-linkedin-in"></i></a>
+            <a href="https://instagram.com/Flaming_Slayer_7" class="social-link"><i class="fab fa-instagram"></i></a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h4>Services</h4>
+          <ul>
+            <li><a href="products.html">Order Medicines</a></li>
+            <li><a href="upload-prescription.html">Upload Prescription</a></li>
+            <li><a href="login.html">Order Tracking</a></li>
+            <li><a href="#features">Same-Day Delivery</a></li>
+            <li><a href="#contact">Emergency Contact</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Company</h4>
+          <ul>
+            <li><a href="index.html">About Us</a></li>
+            <li><a href="products.html">Our Products</a></li>
+            <li><a href="register.html">Careers</a></li>
+            <li><a href="#contact">Press & Media</a></li>
+            <li><a href="#contact">Contact Us</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Legal</h4>
+          <ul>
+            <li><a href="#" onclick="alert('Privacy Policy Modal Loading...')">Privacy Policy</a></li>
+            <li><a href="#" onclick="alert('Terms & Conditions Modal Loading...')">Terms & Conditions</a></li>
+            <li><a href="#" onclick="alert('Cookie Policy Modal Loading...')">Cookie Policy</a></li>
+            <li><a href="#" onclick="alert('HIPAA Compliance Modal Loading...')">HIPAA Compliance</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 MediStore. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+
+<script src="/static/js/config.js"></script>
+  <script src="/static/js/init.js"></script>
+  <script src="/static/js/app.js"></script>
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const errorDiv = document.getElementById('errorMessage');
+      const successDiv = document.getElementById('successMessage');
+      const btnText = document.getElementById('btnText');
+      const btnSpinner = document.getElementById('btnSpinner');
+
+      // Clear previous messages
+      errorDiv.style.display = 'none';
+      successDiv.style.display = 'none';
+
+      // Show loading state
+      btnText.style.display = 'none';
+      btnSpinner.style.display = 'inline';
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/auth/login/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ username, password })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          // Save token
+          localStorage.setItem(TOKEN_KEY, data.token);
+          localStorage.setItem('user', JSON.stringify(data.user));
+          
+          successDiv.textContent = 'Login successful! Redirecting...';
+          successDiv.style.display = 'block';
+          
+          setTimeout(() => {
+            window.location.href = 'dashboard.html';
+          }, 1500);
+        } else {
+          errorDiv.textContent = data.error || 'Invalid email/username or password';
+          errorDiv.style.display = 'block';
+        }
+      } catch (error) {
+        reportClientError('Login error', error, 'Login failed. Please try again.');
+        errorDiv.textContent = 'An error occurred. Please try again.';
+        errorDiv.style.display = 'block';
+      } finally {
+        btnText.style.display = 'inline';
+        btnSpinner.style.display = 'none';
+      }
+    });
+
+    // Redirect if already logged in
+    document.addEventListener('DOMContentLoaded', () => {
+      setupThemeToggle();
+      setupMobileMenu();
+      if (localStorage.getItem(TOKEN_KEY)) {
+        window.location.href = 'dashboard.html';
+      }
+    });
+  </script>
+</body>
+</html>
+
+

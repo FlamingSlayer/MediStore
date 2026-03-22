@@ -1,0 +1,26 @@
+# Python cache
+**/__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+medicare_backend/venv/
+.venv/
+venv/
+
+# Environment files
+medicare_backend/.env
+.env
+
+# Local databases
+medicare_backend/db.sqlite3
+*.sqlite3
+
+# Build/static artifacts
+medicare_backend/staticfiles/
+media/
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+*.log

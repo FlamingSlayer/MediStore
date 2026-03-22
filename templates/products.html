@@ -1,0 +1,432 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shop Products - MediStore</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="/static/css/styles.css">
+  <link rel="manifest" href="/static/manifest.json">
+</head>
+<body>
+  <!-- Header/Navigation -->
+  <header class="header" id="main-header">
+    <div class="container">
+      <div class="header-inner">
+        <a href="index.html" class="logo">
+          <div class="logo-icon"><i class="fas fa-pills"></i></div>
+          <span class="logo-text">MediStore</span>
+        </a>
+        
+        <button class="mobile-menu-btn" id="mobileMenuBtn">
+          <i class="fas fa-bars"></i>
+        </button>
+        
+        <nav class="nav-links" id="navLinks">
+          <a href="index.html" class="nav-link">Home</a>
+          <a href="#" class="nav-link active">Shop</a>
+          <a href="index.html#features" class="nav-link">Features</a>
+          <a href="#" class="nav-link">Contact</a>
+        </nav>
+        
+        <div class="header-controls">
+          <button class="theme-toggle" id="themeToggle" title="Toggle dark mode">
+            <i class="fas fa-moon"></i>
+          </button>
+          
+          <div id="guest-nav" style="display: flex; gap: 8px;">
+            <a href="login.html" class="btn btn-outline">Login</a>
+            <a href="register.html" class="btn btn-primary">Sign Up</a>
+          </div>
+
+          <div id="user-nav" style="display: none;">
+            <span class="user-greeting">Hi, <span id="user-name">User</span></span>
+            <a href="dashboard.html" class="btn btn-primary">Dashboard</a>
+            <button id="logoutBtn" class="btn-logout" title="Logout">
+              <i class="fas fa-sign-out-alt"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Breadcrumb -->
+    <section class="breadcrumb">
+      <div class="container">
+        <a href="index.html">Home</a> / <span>Shop</span>
+      </div>
+    </section>
+
+    <!-- Shop Container -->
+    <div class="container shop-container">
+      <!-- Sidebar Filters -->
+      <aside class="shop-sidebar">
+        <div class="sidebar-section">
+          <h3>Search</h3>
+          <input 
+            type="text" 
+            id="searchInput" 
+            class="search-input" 
+            placeholder="Search medicines..."
+          >
+          <div id="autocompleteList" style="background: var(--bg-light); border: 1px solid var(--border); border-radius: 8px; margin-top: 6px; display: none;"></div>
+        </div>
+
+        <div class="sidebar-section">
+          <h3>Categories</h3>
+          <div id="categoriesList" class="categories-list">
+            <!-- Loaded by JavaScript -->
+          </div>
+        </div>
+
+        <div class="sidebar-section">
+          <h3>Type</h3>
+          <div class="filter-options">
+            <label class="checkbox-label">
+              <input type="checkbox" name="type" value="rx" class="type-filter">
+              <span>Prescription (Rx)</span>
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" name="type" value="otc" class="type-filter">
+              <span>Over the Counter (OTC)</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="sidebar-section">
+          <h3>Price Range</h3>
+          <div class="price-filter">
+            <input type="range" id="priceRange" min="0" max="5000" step="50" value="5000">
+            <p><span id="priceValue">₹5000</span></p>
+          </div>
+        </div>
+
+        <button id="clearFilters" class="btn btn-outline btn-full">
+          <i class="fas fa-times"></i> Clear Filters
+        </button>
+      </aside>
+
+      <!-- Main Shop Area -->
+      <section class="shop-main">
+        <!-- Sort & View Options -->
+        <div class="shop-header">
+          <div>
+            <p>Showing <span id="productCount">0</span> products</p>
+          </div>
+          <select id="sortBy" class="sort-select">
+            <option value="relevance">Sort by: Relevance</option>
+            <option value="price-low">Price: Low to High</option>
+            <option value="price-high">Price: High to Low</option>
+            <option value="newest">Newest First</option>
+            <option value="discount">Highest Discount</option>
+          </select>
+        </div>
+
+        <!-- Products Grid -->
+        <div class="products-grid" id="productsGrid">
+          <!-- Loaded by JavaScript -->
+        </div>
+
+        <!-- Loading State -->
+        <div id="loadingState" style="display: none; text-align: center; padding: 40px;">
+          <div class="spinner"></div>
+          <p>Loading products...</p>
+        </div>
+
+        <!-- No Results -->
+        <div id="noResults" style="display: none; text-align: center; padding: 80px 20px;">
+          <i class="fas fa-inbox" style="font-size: 48px; color: var(--text-light); margin-bottom: 20px;"></i>
+          <h3>No products found</h3>
+          <p>Try adjusting your filters or search terms</p>
+          <button onclick="clearAllFilters()" class="btn btn-primary" style="margin-top: 20px;">
+            Clear All Filters
+          </button>
+        </div>
+
+        <!-- Pagination -->
+        <div id="paginationButtons" class="pagination" style="display: none;">
+          <!-- Loaded by JavaScript -->
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-col">
+          <h4>About MediStore</h4>
+          <p>Your trusted online pharmacy for quality medicines and healthcare products.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Quick Links</h4>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="#">Products</a></li>
+            <li><a href="#">About</a></li>
+            <li><a href="#">Contact</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Contact Info</h4>
+          <p><i class="fas fa-phone"></i> +91-XXXXX-XXXXX</p>
+          <p><i class="fas fa-envelope"></i> support@medistore.com</p>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 MediStore. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/static/js/config.js"></script>
+  <script src="/static/js/init.js"></script>
+  <script src="/static/js/app.js"></script>
+  <script>
+    let allProducts = [];
+    let currentPage = 1;
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      setupThemeToggle();
+      setupMobileMenu();
+      checkAuth();
+      loadCategories();
+      loadProducts();
+      setupEventListeners();
+    });
+
+    function setupEventListeners() {
+      // Search
+      document.getElementById('searchInput').addEventListener('input', () => {
+        currentPage = 1;
+        loadProducts();
+        loadAutocomplete();
+      });
+
+      // Filters
+      document.querySelectorAll('.type-filter').forEach(checkbox => {
+        checkbox.addEventListener('change', () => {
+          currentPage = 1;
+          loadProducts();
+        });
+      });
+
+      // Price range
+      document.getElementById('priceRange').addEventListener('input', (e) => {
+        document.getElementById('priceValue').textContent = `₹${e.target.value}`;
+        currentPage = 1;
+        loadProducts();
+      });
+
+      // Sort
+      document.getElementById('sortBy').addEventListener('change', () => {
+        currentPage = 1;
+        loadProducts();
+      });
+
+      // Clear filters
+      document.getElementById('clearFilters').addEventListener('click', clearAllFilters);
+    }
+
+    async function loadCategories() {
+      try {
+        const response = await fetch(`${API_BASE_URL}/categories/`);
+        const results = await response.json();
+        const categories = results.results || results;
+        
+        const html = categories.map(cat => `
+          <label class="checkbox-label">
+            <input type="checkbox" name="category" value="${cat.name}" class="category-filter">
+            <span>${cat.name}</span>
+          </label>
+        `).join('');
+        
+        document.getElementById('categoriesList').innerHTML = html;
+        
+        // Add event listeners to category filters
+        document.querySelectorAll('.category-filter').forEach(checkbox => {
+          checkbox.addEventListener('change', () => {
+            currentPage = 1;
+            loadProducts();
+          });
+        });
+      } catch (error) {
+        reportClientError('Error loading categories', error, 'Unable to load categories.');
+      }
+    }
+
+    async function loadProducts() {
+      try {
+        document.getElementById('loadingState').style.display = 'block';
+        document.getElementById('productsGrid').innerHTML = '';
+
+        let url = `${API_BASE_URL}/products/`;
+        const params = new URLSearchParams();
+
+        // Search
+        const search = document.getElementById('searchInput').value;
+        if (search) params.append('search', search);
+
+        // Categories
+        const selectedCategories = Array.from(document.querySelectorAll('.category-filter:checked'))
+          .map(cb => cb.value);
+        if (selectedCategories.length > 0) {
+          params.append('category', selectedCategories.join(','));
+        }
+
+        // Type filters
+        const typeFilters = Array.from(document.querySelectorAll('.type-filter:checked'))
+          .map(cb => cb.value);
+        if (typeFilters.includes('rx')) params.append('prescription_required', 'true');
+        if (typeFilters.includes('otc')) params.append('prescription_required', 'false');
+
+        // Price filter
+        const maxPrice = document.getElementById('priceRange').value;
+        if (maxPrice) params.append('max_price', maxPrice);
+
+        // Sort
+        const sortBy = document.getElementById('sortBy').value;
+        if (sortBy === 'price-low') params.append('ordering', 'discount_price');
+        if (sortBy === 'price-high') params.append('ordering', '-discount_price');
+        if (sortBy === 'newest') params.append('ordering', '-created_at');
+        if (sortBy === 'discount') params.append('ordering', '-discount_percentage');
+
+        params.append('page', currentPage);
+
+        if (params.toString()) url += '?' + params;
+
+        const response = await fetch(url);
+        const result = await response.json();
+
+        document.getElementById('loadingState').style.display = 'none';
+
+        if (result.results && result.results.length > 0) {
+          displayProducts(result.results);
+          document.getElementById('noResults').style.display = 'none';
+          
+          // Update product count
+          document.getElementById('productCount').textContent = result.count || result.results.length;
+
+          // Show pagination if needed
+          if (result.next || result.previous) {
+            setupPagination(result);
+          }
+        } else {
+          document.getElementById('noResults').style.display = 'block';
+          document.getElementById('productCount').textContent = '0';
+        }
+      } catch (error) {
+        reportClientError('Error loading products', error, 'Unable to load products.');
+        document.getElementById('loadingState').style.display = 'none';
+      }
+    }
+
+    function displayProducts(products) {
+      const html = products.map(product => `
+        <div class="product-card">
+          ${product.discount_percentage > 0 ? `<span class="badge-discount">-${product.discount_percentage}%</span>` : ''}
+          <div class="product-image">
+            <i class="fas fa-pills"></i>
+          </div>
+          <div class="product-info">
+            <h3 class="product-name">${product.name}</h3>
+            <p class="product-brand">${product.brand}</p>
+            <div class="product-pricing">
+              ${product.discount_percentage > 0 ? `
+                <span class="price-original">₹${product.price}</span>
+                <span class="price-current">₹${product.discount_price}</span>
+              ` : `
+                <span class="price-current">₹${product.price}</span>
+              `}
+            </div>
+            <div class="product-tags">
+              ${product.prescription_required ? '<span class="tag rx">Rx</span>' : '<span class="tag otc">OTC</span>'}
+            </div>
+            <button class="btn btn-sm btn-primary" onclick="viewProduct(${product.id})">
+              <i class="fas fa-eye"></i> View
+            </button>
+          </div>
+        </div>
+      `).join('');
+      
+      document.getElementById('productsGrid').innerHTML = html;
+    }
+
+    function setupPagination(result) {
+      const paginationDiv = document.getElementById('paginationButtons');
+      let html = '<div class="pagination-controls">';
+      
+      if (result.previous) {
+        html += `<button onclick="goToPage(${currentPage - 1})" class="btn btn-outline">Previous</button>`;
+      }
+      
+      html += `<span>Page ${currentPage}</span>`;
+      
+      if (result.next) {
+        html += `<button onclick="goToPage(${currentPage + 1})" class="btn btn-outline">Next</button>`;
+      }
+      
+      html += '</div>';
+      paginationDiv.innerHTML = html;
+      paginationDiv.style.display = 'block';
+    }
+
+    function goToPage(page) {
+      currentPage = page;
+      loadProducts();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function clearAllFilters() {
+      document.getElementById('searchInput').value = '';
+      document.querySelectorAll('.category-filter, .type-filter').forEach(checkbox => checkbox.checked = false);
+      document.getElementById('priceRange').value = '5000';
+      document.getElementById('priceValue').textContent = '₹5000';
+      currentPage = 1;
+      loadProducts();
+    }
+
+    function viewProduct(productId) {
+      window.location.href = `product-detail.html?id=${productId}`;
+    }
+
+    async function loadAutocomplete() {
+      const query = document.getElementById('searchInput').value.trim();
+      const list = document.getElementById('autocompleteList');
+      if (!query) {
+        list.style.display = 'none';
+        list.innerHTML = '';
+        return;
+      }
+
+      const response = await fetch(`${API_BASE_URL}/products/autocomplete/?q=${encodeURIComponent(query)}`);
+      const names = await response.json();
+      if (!Array.isArray(names) || names.length === 0) {
+        list.style.display = 'none';
+        list.innerHTML = '';
+        return;
+      }
+
+      list.innerHTML = names.map(name => `
+        <button type="button" style="display:block;width:100%;text-align:left;padding:8px 10px;border:none;background:transparent;cursor:pointer;" onclick="selectAutocomplete('${name.replace(/'/g, "\\'")}')">${name}</button>
+      `).join('');
+      list.style.display = 'block';
+    }
+
+    function selectAutocomplete(name) {
+      document.getElementById('searchInput').value = name;
+      document.getElementById('autocompleteList').style.display = 'none';
+      loadProducts();
+    }
+  </script>
+</body>
+</html>
+
+

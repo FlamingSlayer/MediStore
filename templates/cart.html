@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shopping Cart - MediStore</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+  <!-- Header/Navigation -->
+  <header class="header" id="main-header">
+    <div class="container">
+      <div class="header-inner">
+        <a href="index.html" class="logo">
+          <div class="logo-icon"><i class="fas fa-pills"></i></div>
+          <span class="logo-text">MediStore</span>
+        </a>
+        
+        <button class="mobile-menu-btn" id="mobileMenuBtn">
+          <i class="fas fa-bars"></i>
+        </button>
+        
+        <nav class="nav-links" id="navLinks">
+          <a href="index.html" class="nav-link">Home</a>
+          <a href="products.html" class="nav-link">Shop</a>
+          <a href="index.html#features" class="nav-link">Features</a>
+          <a href="#" class="nav-link">Contact</a>
+        </nav>
+        
+        <div class="header-controls">
+          <button class="theme-toggle" id="themeToggle" title="Toggle dark mode">
+            <i class="fas fa-moon"></i>
+          </button>
+          
+          <div id="user-nav" style="display: none;">
+            <span class="user-greeting">Hi, <span id="user-name">User</span></span>
+            <a href="dashboard.html" class="btn btn-primary">Dashboard</a>
+            <button id="logoutBtn" class="btn-logout" title="Logout">
+              <i class="fas fa-sign-out-alt"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Breadcrumb -->
+    <section class="breadcrumb">
+      <div class="container">
+        <a href="index.html">Home</a> / <span>Shopping Cart</span>
+      </div>
+    </section>
+
+    <!-- Cart Container -->
+    <div class="container">
+      <div class="cart-container">
+        <!-- Cart Items -->
+        <section class="cart-items">
+          <h1>Shopping Cart</h1>
+
+          <!-- Loading State -->
+          <div id="loadingState" style="text-align: center; padding: 40px;">
+            <div class="spinner"></div>
+            <p>Loading cart...</p>
+          </div>
+
+          <!-- Empty Cart -->
+          <div id="emptyCart" style="display: none; text-align: center; padding: 80px 20px;">
+            <i class="fas fa-shopping-cart" style="font-size: 48px; color: var(--text-light); margin-bottom: 20px;"></i>
+            <h3>Your cart is empty</h3>
+            <p>Start shopping for medicines now!</p>
+            <a href="products.html" class="btn btn-primary" style="margin-top: 20px;">
+              Continue Shopping
+            </a>
+          </div>
+
+          <!-- Cart Items List -->
+          <div id="cartItemsList"></div>
+        </section>
+
+        <!-- Cart Summary -->
+        <aside class="cart-summary">
+          <div class="summary-card">
+            <h2>Order Summary</h2>
+
+            <div class="summary-row">
+              <span>Subtotal</span>
+              <span id="subtotalAmount">₹0</span>
+            </div>
+
+            <div class="summary-row">
+              <span>Discount</span>
+              <span id="discountAmount" class="discount">-₹0</span>
+            </div>
+
+            <div class="summary-divider"></div>
+
+            <div class="summary-row total">
+              <span>Total</span>
+              <span id="totalAmount">₹0</span>
+            </div>
+
+            <button id="checkoutBtn" onclick="goToCheckout()" class="btn btn-primary btn-lg btn-full" style="margin-top: 20px; display: none;">
+              <i class="fas fa-lock"></i> Proceed to Checkout
+            </button>
+
+            <a href="products.html" class="btn btn-outline btn-lg btn-full">
+              <i class="fas fa-arrow-left"></i> Continue Shopping
+            </a>
+
+            <div id="clearCartBtn" style="display: none; margin-top: 10px;">
+              <button onclick="clearCart()" class="btn-link">Clear Cart</button>
+            </div>
+          </div>
+
+          <div class="info-box">
+            <i class="fas fa-info-circle"></i>
+            <p><strong>Note:</strong> You can proceed to checkout. Any prescriptions required will be collected during checkout.</p>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-col">
+          <h4>About MediStore</h4>
+          <p>Your trusted online pharmacy for quality medicines and healthcare products.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Quick Links</h4>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="products.html">Products</a></li>
+            <li><a href="#">About</a></li>
+            <li><a href="#">Contact</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Contact Info</h4>
+          <p><i class="fas fa-phone"></i> +91-XXXXX-XXXXX</p>
+          <p><i class="fas fa-envelope"></i> support@medistore.com</p>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 MediStore. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/static/js/config.js"></script>
+  <script src="/static/js/init.js"></script>
+  <script src="/static/js/app.js"></script>
+  <script>
+    let cart = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      setupThemeToggle();
+      setupMobileMenu();
+      checkAuth();
+      if (!localStorage.getItem(TOKEN_KEY)) {
+        window.location.href = 'login.html';
+        return;
+      }
+      loadCart();
+    });
+
+    async function loadCart() {
+      try {
+        const response = await fetch(`${API_BASE_URL}/cart/`, {
+          headers: getAuthHeader()
+        });
+
+        const data = await response.json();
+        cart = data;
+
+        document.getElementById('loadingState').style.display = 'none';
+
+        if (cart.items && cart.items.length > 0) {
+          displayCartItems();
+          updateCartSummary();
+          document.getElementById('checkoutBtn').style.display = 'block';
+          document.getElementById('clearCartBtn').style.display = 'block';
+          document.getElementById('emptyCart').style.display = 'none';
+        } else {
+          document.getElementById('emptyCart').style.display = 'block';
+          document.getElementById('checkoutBtn').style.display = 'none';
+          document.getElementById('clearCartBtn').style.display = 'none';
+        }
+      } catch (error) {
+        reportClientError('Error loading cart', error, 'Unable to load cart right now.');
+        document.getElementById('loadingState').innerHTML = '<p>Error loading cart. Please try again.</p>';
+      }
+    }
+
+    function displayCartItems() {
+      const html = cart.items.map(item => `
+        <div class="cart-item">
+          <div class="item-image">
+            <i class="fas fa-pills"></i>
+          </div>
+          
+          <div class="item-details">
+            <h3 class="item-name">${item.product?.name || 'Product'}</h3>
+            <p class="item-brand">${item.product?.brand || ''}</p>
+            <div class="item-pricing">
+              ${parseFloat(item.product?.discount_percentage || 0) > 0 ? `
+                <span class="price-original">₹${item.product?.price || '0.00'}</span>
+                <span class="price-current">₹${item.product?.discount_price || item.product?.price || '0.00'}</span>
+              ` : `
+                <span class="price-current">₹${item.product?.price || '0.00'}</span>
+              `}
+            </div>
+            ${item.product?.prescription_required ? '<span class="tag rx">Rx</span>' : '<span class="tag otc">OTC</span>'}
+          </div>
+
+          <div class="item-quantity">
+            <button onclick="updateItemQuantity(${item.id}, ${item.quantity - 1})" class="qty-btn" ${item.quantity === 1 ? 'disabled' : ''}>
+              <i class="fas fa-minus"></i>
+            </button>
+            <span>${item.quantity}</span>
+            <button onclick="updateItemQuantity(${item.id}, ${item.quantity + 1})" class="qty-btn">
+              <i class="fas fa-plus"></i>
+            </button>
+          </div>
+
+          <div class="item-total">
+            <p>₹${item.subtotal}</p>
+          </div>
+
+          <button onclick="removeFromCart(${item.id})" class="btn-remove">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      `).join('');
+
+      document.getElementById('cartItemsList').innerHTML = html;
+    }
+
+    function updateCartSummary() {
+      const subtotal = (cart.items || []).reduce((sum, item) => {
+        const base = parseFloat(item.product?.price || 0);
+        return sum + (base * parseInt(item.quantity || 0, 10));
+      }, 0);
+
+      const total = parseFloat(cart.total_price || 0);
+      const discount = Math.max(0, subtotal - total);
+
+      document.getElementById('subtotalAmount').textContent = `₹${subtotal.toFixed(2)}`;
+      document.getElementById('discountAmount').textContent = `-₹${discount.toFixed(2)}`;
+      document.getElementById('totalAmount').textContent = `₹${total.toFixed(2)}`;
+    }
+
+    async function updateItemQuantity(itemId, newQuantity) {
+      if (newQuantity < 1) return;
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/cart/update_item/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...getAuthHeader()
+          },
+          body: JSON.stringify({
+            cart_item_id: itemId,
+            quantity: newQuantity
+          })
+        });
+
+        if (response.ok) {
+          loadCart();
+        }
+      } catch (error) {
+        reportClientError('Error updating quantity', error, 'Unable to update quantity.');
+      }
+    }
+
+    async function removeFromCart(itemId) {
+      if (!confirm('Remove this item from cart?')) return;
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/cart/remove_item/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...getAuthHeader()
+          },
+          body: JSON.stringify({
+            cart_item_id: itemId
+          })
+        });
+
+        if (response.ok) {
+          loadCart();
+        }
+      } catch (error) {
+        reportClientError('Error removing item', error, 'Unable to remove item.');
+      }
+    }
+
+    async function clearCart() {
+      if (!confirm('Clear all items from cart?')) return;
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/cart/clear/`, {
+          method: 'POST',
+          headers: getAuthHeader()
+        });
+
+        if (response.ok) {
+          loadCart();
+        }
+      } catch (error) {
+        reportClientError('Error clearing cart', error, 'Unable to clear cart.');
+      }
+    }
+
+    function goToCheckout() {
+      window.location.href = 'checkout.html';
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,595 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - MediStore</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+  <!-- Header/Navigation -->
+  <header class="header" id="main-header">
+    <div class="container">
+      <div class="header-inner">
+        <a href="index.html" class="logo">
+          <div class="logo-icon"><i class="fas fa-pills"></i></div>
+          <span class="logo-text">MediStore</span>
+        </a>
+        
+        <button class="mobile-menu-btn" id="mobileMenuBtn">
+          <i class="fas fa-bars"></i>
+        </button>
+        
+        <nav class="nav-links" id="navLinks">
+          <a href="index.html" class="nav-link">Home</a>
+          <a href="products.html" class="nav-link">Shop</a>
+          <a href="#" class="nav-link active">Dashboard</a>
+        </nav>
+        
+        <div class="header-controls">
+          <button class="theme-toggle" id="themeToggle" title="Toggle dark mode">
+            <i class="fas fa-moon"></i>
+          </button>
+          
+          <span class="user-greeting">Hi, <span id="user-name">User</span></span>
+          <button id="logoutBtn" class="btn-logout" title="Logout">
+            <i class="fas fa-sign-out-alt"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Breadcrumb -->
+    <section class="breadcrumb">
+      <div class="container">
+        <a href="index.html">Home</a> / <span>Dashboard</span>
+      </div>
+    </section>
+
+    <!-- Dashboard Container -->
+    <div class="container">
+      <div class="dashboard-container">
+        <!-- Sidebar Navigation -->
+        <aside class="dashboard-sidebar">
+          <nav class="dashboard-nav">
+            <button onclick="showTab('overview')" class="nav-item active">
+              <i class="fas fa-chart-pie"></i> Overview
+            </button>
+            <button onclick="showTab('orders')" class="nav-item">
+              <i class="fas fa-shopping-bag"></i> My Orders
+            </button>
+            <button onclick="showTab('profile')" class="nav-item">
+              <i class="fas fa-user"></i> Profile
+            </button>
+            <button onclick="showTab('addresses')" class="nav-item">
+              <i class="fas fa-map-marker-alt"></i> Addresses
+            </button>
+            <button onclick="showTab('prescriptions')" class="nav-item">
+              <i class="fas fa-file"></i> Prescriptions
+            </button>
+          </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <section class="dashboard-content">
+          <!-- Overview Tab -->
+          <div id="overviewTab" class="tab-content active">
+            <h1>Welcome Back!</h1>
+            <div class="overview-grid">
+              <div class="stat-card">
+                <i class="fas fa-shopping-bag"></i>
+                <div>
+                  <p class="stat-value" id="totalOrders">0</p>
+                  <p>Total Orders</p>
+                </div>
+              </div>
+              <div class="stat-card">
+                <i class="fas fa-check-circle"></i>
+                <div>
+                  <p class="stat-value" id="completedOrders">0</p>
+                  <p>Completed Orders</p>
+                </div>
+              </div>
+              <div class="stat-card">
+                <i class="fas fa-clock"></i>
+                <div>
+                  <p class="stat-value" id="pendingOrders">0</p>
+                  <p>Pending Orders</p>
+                </div>
+              </div>
+              <div class="stat-card">
+                <i class="fas fa-wallet"></i>
+                <div>
+                  <p class="stat-value" id="totalSpent">₹0</p>
+                  <p>Total Spent</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="quick-actions">
+              <h2>Quick Actions</h2>
+              <div class="action-buttons">
+                <a href="products.html" class="btn btn-primary">
+                  <i class="fas fa-shopping-cart"></i> Continue Shopping
+                </a>
+                <a href="upload-prescription.html" class="btn btn-outline">
+                  <i class="fas fa-file-upload"></i> Upload Prescription
+                </a>
+                <button onclick="showTab('addresses')" class="btn btn-outline">
+                  <i class="fas fa-plus"></i> Add Address
+                </button>
+              </div>
+            </div>
+
+            <div class="recent-orders">
+              <h2>Recent Orders</h2>
+              <div id="recentOrdersList">
+                <!-- Loaded by JavaScript -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Orders Tab -->
+          <div id="ordersTab" class="tab-content">
+            <h1>My Orders</h1>
+            <div id="ordersList">
+              <!-- Loaded by JavaScript -->
+            </div>
+          </div>
+
+          <!-- Profile Tab -->
+          <div id="profileTab" class="tab-content">
+            <h1>My Profile</h1>
+            <form id="profileForm" class="profile-form">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="first_name">First Name</label>
+                  <input type="text" id="first_name" name="first_name" required>
+                </div>
+                <div class="form-group">
+                  <label for="last_name">Last Name</label>
+                  <input type="text" id="last_name" name="last_name" required>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required>
+              </div>
+
+              <div class="form-group">
+                <label for="phone">Phone Number</label>
+                <input type="tel" id="phone" name="phone" required>
+              </div>
+
+              <div class="form-group">
+                <label for="current_password">Current Password</label>
+                <input type="password" id="current_password" name="current_password">
+                <small>Only required if changing password</small>
+              </div>
+
+              <div class="form-group">
+                <label for="new_password">New Password</label>
+                <input type="password" id="new_password" name="new_password" placeholder="Leave blank to keep current">
+              </div>
+
+              <div class="form-group">
+                <label for="confirm_password">Confirm Password</label>
+                <input type="password" id="confirm_password" name="confirm_password" placeholder="Confirm new password">
+              </div>
+
+              <div id="profileMessage" class="success-message" style="display: none;"></div>
+              <div id="profileError" class="error-message" style="display: none;"></div>
+
+              <button type="submit" class="btn btn-primary">Save Changes</button>
+            </form>
+          </div>
+
+          <!-- Addresses Tab -->
+          <div id="addressesTab" class="tab-content">
+            <h1>My Addresses</h1>
+            
+            <div class="addresses-list" id="addressesList">
+              <!-- Loaded by JavaScript -->
+            </div>
+
+            <div class="add-address-form" id="addAddressForm" style="display: none;">
+              <h2>Add New Address</h2>
+              <form id="addressForm">
+                <div class="form-group">
+                  <label for="addr_name">Full Name</label>
+                  <input type="text" id="addr_name" required>
+                </div>
+
+                <div class="form-group">
+                  <label for="addr_phone">Phone Number</label>
+                  <input type="tel" id="addr_phone" required>
+                </div>
+
+                <div class="form-group">
+                  <label for="addr_street">Street Address</label>
+                  <input type="text" id="addr_street" required>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="addr_city">City</label>
+                    <input type="text" id="addr_city" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="addr_state">State</label>
+                    <input type="text" id="addr_state" required>
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="addr_zip">ZIP Code</label>
+                    <input type="text" id="addr_zip" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="addr_country">Country</label>
+                    <input type="text" id="addr_country" value="India" required>
+                  </div>
+                </div>
+
+                <div class="form-buttons">
+                  <button type="submit" class="btn btn-primary">Save Address</button>
+                  <button type="button" onclick="cancelAddAddress()" class="btn btn-outline">Cancel</button>
+                </div>
+              </form>
+            </div>
+
+            <button onclick="toggleAddressForm()" class="btn btn-primary" id="addAddressBtn">
+              <i class="fas fa-plus"></i> Add New Address
+            </button>
+          </div>
+
+          <!-- Prescriptions Tab -->
+          <div id="prescriptionsTab" class="tab-content">
+            <h1>My Prescriptions</h1>
+            
+            <div class="prescriptions-list" id="prescriptionsList">
+              <!-- Loaded by JavaScript -->
+            </div>
+
+            <a href="upload-prescription.html" class="btn btn-primary">
+              <i class="fas fa-file-upload"></i> Upload Prescription
+            </a>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-col">
+          <h4>About MediStore</h4>
+          <p>Your trusted online pharmacy for quality medicines and healthcare products.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Quick Links</h4>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="products.html">Products</a></li>
+            <li><a href="#">About</a></li>
+            <li><a href="#">Contact</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Contact Info</h4>
+          <p><i class="fas fa-phone"></i> +91-XXXXX-XXXXX</p>
+          <p><i class="fas fa-envelope"></i> support@medistore.com</p>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 MediStore. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/static/js/config.js"></script>
+  <script src="/static/js/init.js"></script>
+  <script src="/static/js/app.js"></script>
+  <script>
+    let userData = null;
+    let userOrders = [];
+    let userAddresses = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      setupThemeToggle();
+      setupMobileMenu();
+      checkAuth();
+      if (!localStorage.getItem(TOKEN_KEY)) {
+        window.location.href = 'login.html';
+        return;
+      }
+      loadDashboardData();
+      setupEventListeners();
+    });
+
+    function setupEventListeners() {
+      document.getElementById('profileForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        await updateProfile();
+      });
+
+      document.getElementById('addressForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        await addAddress();
+      });
+    }
+
+    async function loadDashboardData() {
+      try {
+        // Load user profile
+        let response = await fetch(`${API_BASE_URL}/profile/`, {
+          headers: getAuthHeader()
+        });
+        userData = await response.json();
+        populateProfileForm();
+
+        // Load orders
+        response = await fetch(`${API_BASE_URL}/orders/`, {
+          headers: getAuthHeader()
+        });
+        const orderData = await response.json();
+        userOrders = orderData.results || orderData;
+        displayOrders();
+
+        // Load addresses
+        response = await fetch(`${API_BASE_URL}/addresses/`, {
+          headers: getAuthHeader()
+        });
+        const addressData = await response.json();
+        userAddresses = addressData.results || addressData;
+        displayAddresses();
+
+        // Load prescriptions
+        response = await fetch(`${API_BASE_URL}/prescriptions/`, {
+          headers: getAuthHeader()
+        });
+        const presData = await response.json();
+        const prescriptions = presData.results || presData;
+        displayPrescriptions(prescriptions);
+
+        // Update stats
+        updateStats();
+      } catch (error) {
+        reportClientError('Error loading dashboard data', error, 'Unable to load dashboard data.');
+      }
+    }
+
+    function populateProfileForm() {
+      if (userData) {
+        document.getElementById('first_name').value = userData.first_name || '';
+        document.getElementById('last_name').value = userData.last_name || '';
+        document.getElementById('email').value = userData.email || '';
+        document.getElementById('phone').value = '';
+      }
+    }
+
+    async function updateProfile() {
+      try {
+        const newPassword = document.getElementById('new_password').value;
+        
+        if (newPassword && document.getElementById('confirm_password').value !== newPassword) {
+          document.getElementById('profileError').textContent = 'Passwords do not match';
+          document.getElementById('profileError').style.display = 'block';
+          return;
+        }
+
+        const data = {
+          first_name: document.getElementById('first_name').value,
+          last_name: document.getElementById('last_name').value,
+          phone: document.getElementById('phone').value
+        };
+
+        if (newPassword) {
+          data.password = newPassword;
+        }
+
+        const response = await fetch(`${API_BASE_URL}/profile/`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            ...getAuthHeader()
+          },
+          body: JSON.stringify(data)
+        });
+
+        if (response.ok) {
+          document.getElementById('profileMessage').textContent = 'Profile updated successfully!';
+          document.getElementById('profileMessage').style.display = 'block';
+          document.getElementById('profileError').style.display = 'none';
+          document.getElementById('new_password').value = '';
+          document.getElementById('confirm_password').value = '';
+          
+          setTimeout(() => {
+            document.getElementById('profileMessage').style.display = 'none';
+          }, 3000);
+        } else {
+          throw new Error('Update failed');
+        }
+      } catch (error) {
+        reportClientError('Error updating profile', error, 'Unable to update profile.');
+        document.getElementById('profileError').textContent = 'Failed to update profile';
+        document.getElementById('profileError').style.display = 'block';
+      }
+    }
+
+    function displayOrders() {
+      const html = userOrders.map(order => `
+        <div class="order-card">
+          <div class="order-header">
+            <div>
+              <h3>Order #${order.id}</h3>
+              <p class="order-date">${new Date(order.placed_at).toLocaleDateString()}</p>
+            </div>
+            <span class="status-badge status-${order.status}">${order.status}</span>
+          </div>
+          <div class="order-details">
+            <p><strong>Total:</strong> ${order.total_amount}</p>
+            <p><strong>Items:</strong> ${order.items.length}</p>
+          </div>
+          <a href="order-detail.html?id=${order.id}" class="btn btn-sm btn-outline">
+            View Details
+          </a>
+        </div>
+      `).join('');
+
+      document.getElementById('ordersList').innerHTML = html || '<p>No orders yet</p>';
+      
+      const recentHtml = userOrders.slice(0, 3).map(order => `
+        <div class="order-card">
+          <div class="order-header">
+            <div>
+              <h3>Order #${order.id}</h3>
+              <p class="order-date">${new Date(order.placed_at).toLocaleDateString()}</p>
+            </div>
+            <span class="status-badge status-${order.status}">${order.status}</span>
+          </div>
+          <div class="order-details">
+            <p><strong>Total:</strong> ${order.total_amount}</p>
+            <p><strong>Items:</strong> ${order.items.length}</p>
+          </div>
+          <a href="order-detail.html?id=${order.id}" class="btn btn-sm btn-outline">
+            View Details
+          </a>
+        </div>
+      `).join('');
+      
+      document.getElementById('recentOrdersList').innerHTML = recentHtml || '<p>No orders yet</p>';
+    }
+
+    function displayAddresses() {
+      const html = userAddresses.map(addr => `
+        <div class="address-card">
+          <div class="address-content">
+            <h3>${addr.full_name}</h3>
+            <p>${addr.address_line_1}</p>
+            <p>${addr.city}, ${addr.state} ${addr.postal_code}</p>
+            <p>${addr.phone}</p>
+          </div>
+          <div class="address-actions">
+            <button onclick="editAddress(${addr.id})" class="btn-sm btn-link">Edit</button>
+            <button onclick="deleteAddress(${addr.id})" class="btn-sm btn-link danger">Delete</button>
+          </div>
+        </div>
+      `).join('');
+
+      document.getElementById('addressesList').innerHTML = html || '<p>No saved addresses</p>';
+    }
+
+    function displayPrescriptions(prescriptions) {
+      const html = prescriptions.map(pres => `
+        <div class="prescription-card">
+          <i class="fas fa-file-pdf"></i>
+          <div>
+            <h3>Prescription #${pres.id}</h3>
+            <p>Uploaded: ${new Date(pres.uploaded_at).toLocaleDateString()}</p>
+            <p>Status: ${pres.status_display || pres.status}</p>
+          </div>
+          <a href="${pres.file}" target="_blank" rel="noopener" class="btn btn-sm">View</a>
+        </div>
+      `).join('');
+
+      document.getElementById('prescriptionsList').innerHTML = html || '<p>No prescriptions uploaded</p>';
+    }
+
+    async function addAddress() {
+      try {
+        const response = await fetch(`${API_BASE_URL}/addresses/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...getAuthHeader()
+          },
+          body: JSON.stringify({
+            full_name: document.getElementById('addr_name').value,
+            phone: document.getElementById('addr_phone').value,
+            address_line_1: document.getElementById('addr_street').value,
+            address_line_2: '',
+            city: document.getElementById('addr_city').value,
+            state: document.getElementById('addr_state').value,
+            postal_code: document.getElementById('addr_zip').value,
+            is_default: false
+          })
+        });
+
+        if (response.ok) {
+          loadDashboardData();
+          cancelAddAddress();
+        }
+      } catch (error) {
+        reportClientError('Error adding address', error, 'Unable to add address.');
+      }
+    }
+
+    function toggleAddressForm() {
+      document.getElementById('addAddressForm').style.display = 
+        document.getElementById('addAddressForm').style.display === 'none' ? 'block' : 'none';
+    }
+
+    function cancelAddAddress() {
+      document.getElementById('addAddressForm').style.display = 'none';
+      document.getElementById('addressForm').reset();
+    }
+
+    async function deleteAddress(addressId) {
+      if (!confirm('Delete this address?')) return;
+
+      try {
+        await fetch(`${API_BASE_URL}/addresses/${addressId}/`, {
+          method: 'DELETE',
+          headers: getAuthHeader()
+        });
+        loadDashboardData();
+      } catch (error) {
+        reportClientError('Error deleting address', error, 'Unable to delete address.');
+      }
+    }
+
+    function updateStats() {
+      const completed = userOrders.filter(o => o.status === 'delivered').length;
+      const pending = userOrders.filter(o => ['placed', 'confirmed', 'shipped'].includes(o.status)).length;
+      const totalSpent = userOrders.reduce((sum, o) => sum + parseFloat(o.total_amount), 0);
+
+      document.getElementById('totalOrders').textContent = userOrders.length;
+      document.getElementById('completedOrders').textContent = completed;
+      document.getElementById('pendingOrders').textContent = pending;
+      document.getElementById('totalSpent').textContent = `₹${totalSpent.toFixed(2)}`;
+    }
+
+    function showTab(tabName) {
+      // Hide all tabs
+      document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+      });
+
+      // Remove active class from nav items
+      document.querySelectorAll('.dashboard-nav .nav-item').forEach(item => {
+        item.classList.remove('active');
+      });
+
+      // Show selected tab
+      document.getElementById(tabName + 'Tab').classList.add('active');
+      const activeBtn = document.querySelector(`.dashboard-nav button[onclick="showTab('${tabName}')"]`);
+      if (activeBtn) {
+        activeBtn.classList.add('active');
+      }
+    }
+  </script>
+</body>
+</html>
+
+

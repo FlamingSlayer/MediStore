@@ -1,0 +1,456 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product Details - MediStore</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="/static/css/styles.css">
+  <link rel="manifest" href="/static/manifest.json">
+</head>
+<body>
+  <!-- Header/Navigation -->
+  <header class="header" id="main-header">
+    <div class="container">
+      <div class="header-inner">
+        <a href="index.html" class="logo">
+          <div class="logo-icon"><i class="fas fa-pills"></i></div>
+          <span class="logo-text">MediStore</span>
+        </a>
+        
+        <button class="mobile-menu-btn" id="mobileMenuBtn">
+          <i class="fas fa-bars"></i>
+        </button>
+        
+        <nav class="nav-links" id="navLinks">
+          <a href="index.html" class="nav-link">Home</a>
+          <a href="products.html" class="nav-link active">Shop</a>
+          <a href="index.html#features" class="nav-link">Features</a>
+          <a href="#" class="nav-link">Contact</a>
+        </nav>
+        
+        <div class="header-controls">
+          <button class="theme-toggle" id="themeToggle" title="Toggle dark mode">
+            <i class="fas fa-moon"></i>
+          </button>
+          
+          <div id="guest-nav" style="display: flex; gap: 8px;">
+            <a href="login.html" class="btn btn-outline">Login</a>
+            <a href="register.html" class="btn btn-primary">Sign Up</a>
+          </div>
+
+          <div id="user-nav" style="display: none;">
+            <span class="user-greeting">Hi, <span id="user-name">User</span></span>
+            <a href="cart.html" class="btn btn-outline"><i class="fas fa-shopping-cart"></i> Cart</a>
+            <a href="dashboard.html" class="btn btn-primary">Dashboard</a>
+            <button id="logoutBtn" class="btn-logout" title="Logout">
+              <i class="fas fa-sign-out-alt"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Breadcrumb -->
+    <section class="breadcrumb">
+      <div class="container">
+        <a href="index.html">Home</a> / <a href="products.html">Shop</a> / <span id="productName">Product</span>
+      </div>
+    </section>
+
+    <!-- Product Detail -->
+    <div class="container">
+      <div class="product-detail-container" id="productDetail">
+        <!-- Loading State -->
+        <div class="loading-spinner" style="text-align: center; padding: 80px 20px;">
+          <div class="spinner"></div>
+          <p>Loading product details...</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-col">
+          <h4>About MediStore</h4>
+          <p>Your trusted online pharmacy for quality medicines and healthcare products.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Quick Links</h4>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="products.html">Products</a></li>
+            <li><a href="#">About</a></li>
+            <li><a href="#">Contact</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Contact Info</h4>
+          <p><i class="fas fa-phone"></i> +91-XXXXX-XXXXX</p>
+          <p><i class="fas fa-envelope"></i> support@medistore.com</p>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 MediStore. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/static/js/config.js"></script>
+  <script src="/static/js/init.js"></script>
+  <script src="/static/js/app.js"></script>
+  <script>
+    let product = null;
+
+    document.addEventListener('DOMContentLoaded', () => {      setupThemeToggle();
+      setupMobileMenu();      checkAuth();
+      loadProductDetail();
+    });
+
+    async function loadProductDetail() {
+      try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const productId = urlParams.get('id');
+
+        if (!productId) {
+          document.getElementById('productDetail').innerHTML = `
+            <div style="text-align: center; padding: 80px 20px;">
+              <h3>Product not found</h3>
+              <a href="products.html" class="btn btn-primary">Back to Shop</a>
+            </div>
+          `;
+          return;
+        }
+
+        const response = await fetch(`${API_BASE_URL}/products/${productId}/`);
+        if (!response.ok) throw new Error('Product not found');
+        
+        product = await response.json();
+        displayProductDetail();
+      } catch (error) {
+        reportClientError('Error loading product', error, 'Unable to load product details.');
+        document.getElementById('productDetail').innerHTML = `
+          <div style="text-align: center; padding: 80px 20px;">
+            <h3>Error loading product</h3>
+            <p>${error.message}</p>
+            <a href="products.html" class="btn btn-primary">Back to Shop</a>
+          </div>
+        `;
+      }
+    }
+
+    function displayProductDetail() {
+      document.getElementById('productName').textContent = product.name;
+
+      const html = `
+        <div class="product-detail-grid">
+          <div class="product-detail-image">
+            <div class="image-placeholder">
+              <i class="fas fa-pills"></i>
+            </div>
+          </div>
+
+          <div class="product-detail-info">
+            <div class="product-header">
+              <h1>${product.name}</h1>
+              <p class="brand">${product.brand}</p>
+              ${product.discount_percentage > 0 ? `<span class="badge-discount">-${product.discount_percentage}%</span>` : ''}
+            </div>
+
+            <div class="product-meta">
+              <p><strong>Category:</strong> ${product.category_name}</p>
+              <p><strong>Type:</strong> ${product.prescription_required ? '<span class="tag rx">Prescription Required (Rx)</span>' : '<span class="tag otc">Over the Counter (OTC)</span>'}</p>
+            </div>
+
+            <div class="product-pricing-detail">
+              ${product.discount_percentage > 0 ? `
+                <div>
+                  <span class="label">Original Price:</span>
+                  <span class="price-original">₹${product.price}</span>
+                </div>
+                <div>
+                  <span class="label">Discount:</span>
+                  <span class="discount-percent">-${product.discount_percentage}%</span>
+                </div>
+              ` : ''}
+              <div class="price-section">
+                <span class="price-current">₹${product.discount_price}</span>
+              </div>
+            </div>
+
+            ${product.description ? `
+              <div class="product-description">
+                <h3>Description</h3>
+                <p>${product.description}</p>
+              </div>
+            ` : ''}
+
+            ${product.prescription_required ? `
+              <div class="info-box warning">
+                <i class="fas fa-info-circle"></i>
+                <p>This medicine requires a valid prescription. You will need to upload one during checkout.</p>
+              </div>
+            ` : `
+              <div class="info-box success">
+                <i class="fas fa-check-circle"></i>
+                <p>This medicine is available without prescription.</p>
+              </div>
+            `}
+
+            <div class="product-actions">
+              <div class="quantity-selector">
+                <button onclick="decreaseQuantity()" class="qty-btn">
+                  <i class="fas fa-minus"></i>
+                </button>
+                <input type="number" id="quantity" value="1" readonly>
+                <button onclick="increaseQuantity()" class="qty-btn">
+                  <i class="fas fa-plus"></i>
+                </button>
+              </div>
+
+              <div id="authButtons" style="display: none; gap: 10px;">
+                <a href="login.html" class="btn btn-primary btn-lg">Login to Buy</a>
+              </div>
+
+              <div id="cartButtons" style="display: none; gap: 10px;">
+                <button onclick="addToCart()" id="addToCartBtn" class="btn btn-primary btn-lg">
+                  <i class="fas fa-shopping-cart"></i> Add to Cart
+                </button>
+                <button onclick="goToCart()" class="btn btn-outline btn-lg">
+                  <i class="fas fa-arrow-right"></i> Go to Cart
+                </button>
+              </div>
+            </div>
+
+            <div id="successMessage" class="success-message" style="display: none; margin-top: 20px;">
+              <i class="fas fa-check-circle"></i> Added to cart successfully!
+            </div>
+            <div id="errorMessage" class="error-message" style="display: none; margin-top: 20px;"></div>
+          </div>
+        </div>
+
+        <div class="related-products">
+          <h2>Related Products</h2>
+          <div class="products-grid" id="relatedProducts">
+            <!-- Loaded by JavaScript -->
+          </div>
+        </div>
+
+        <section class="related-products" style="margin-top: 20px;">
+          <h2>Reviews</h2>
+          <div id="reviewFormWrap" style="margin-bottom: 16px;"></div>
+          <div id="reviewsList"></div>
+        </section>
+      `;
+
+      document.getElementById('productDetail').innerHTML = html;
+      
+      // Show auth buttons or cart buttons
+      if (localStorage.getItem(TOKEN_KEY)) {
+        document.getElementById('cartButtons').style.display = 'flex';
+      } else {
+        document.getElementById('authButtons').style.display = 'flex';
+      }
+
+      loadRelatedProducts();
+      loadReviews();
+      renderReviewForm();
+    }
+
+    function renderReviewForm() {
+      const wrap = document.getElementById('reviewFormWrap');
+      const token = localStorage.getItem(TOKEN_KEY);
+      if (!token) {
+        wrap.innerHTML = '<p><a href="login.html">Login</a> to leave a review.</p>';
+        return;
+      }
+
+      wrap.innerHTML = `
+        <div class="form-group">
+          <label for="ratingInput">Rating (1-5)</label>
+          <input type="number" id="ratingInput" min="1" max="5" value="5">
+        </div>
+        <div class="form-group">
+          <label for="commentInput">Comment</label>
+          <textarea id="commentInput" rows="3" placeholder="Share your feedback"></textarea>
+        </div>
+        <button type="button" class="btn btn-primary" onclick="submitReview()">Submit Review</button>
+      `;
+    }
+
+    async function loadReviews() {
+      const response = await fetch(`${API_BASE_URL}/reviews/?product_id=${product.id}`);
+      const result = await response.json();
+      const reviews = result.results || result || [];
+      const currentUser = JSON.parse(localStorage.getItem('user') || 'null');
+
+      if (!reviews.length) {
+        document.getElementById('reviewsList').innerHTML = '<p>No reviews yet.</p>';
+        return;
+      }
+
+      document.getElementById('reviewsList').innerHTML = reviews.map(r => `
+        <div class="summary-card" style="margin-bottom: 10px;">
+          <p><strong>${r.user.username}</strong> - ${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</p>
+          <p>${r.comment}</p>
+          <small>${new Date(r.created_at).toLocaleString()}</small>
+          ${(currentUser && currentUser.id === r.user.id) ? `<div><button class="btn btn-outline" onclick="deleteReview(${r.id})">Delete</button></div>` : ''}
+        </div>
+      `).join('');
+    }
+
+    async function submitReview() {
+      const rating = parseInt(document.getElementById('ratingInput').value, 10);
+      const comment = document.getElementById('commentInput').value.trim();
+      const response = await fetch(`${API_BASE_URL}/reviews/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeader()
+        },
+        body: JSON.stringify({
+          product: product.id,
+          rating,
+          comment
+        })
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        alert(data.error || 'Unable to submit review');
+        return;
+      }
+
+      document.getElementById('commentInput').value = '';
+      document.getElementById('ratingInput').value = 5;
+      loadReviews();
+    }
+
+    async function deleteReview(reviewId) {
+      const response = await fetch(`${API_BASE_URL}/reviews/${reviewId}/`, {
+        method: 'DELETE',
+        headers: getAuthHeader()
+      });
+      if (response.ok) {
+        loadReviews();
+      }
+    }
+
+    async function loadRelatedProducts() {
+      try {
+        const response = await fetch(`${API_BASE_URL}/products/?category=${product.category_name}&limit=4`);
+        const results = await response.json();
+        const products = results.results || results;
+        
+        const filteredProducts = products
+          .filter(p => p.id !== product.id)
+          .slice(0, 3);
+
+        if (filteredProducts.length > 0) {
+          const html = filteredProducts.map(p => `
+            <div class="product-card">
+              ${p.discount_percentage > 0 ? `<span class="badge-discount">-${p.discount_percentage}%</span>` : ''}
+              <div class="product-image">
+                <i class="fas fa-pills"></i>
+              </div>
+              <div class="product-info">
+                <h3 class="product-name">${p.name}</h3>
+                <p class="product-brand">${p.brand}</p>
+                <div class="product-pricing">
+                  ${p.discount_percentage > 0 ? `
+                    <span class="price-original">₹${p.price}</span>
+                    <span class="price-current">₹${p.discount_price}</span>
+                  ` : `
+                    <span class="price-current">₹${p.price}</span>
+                  `}
+                </div>
+                <button class="btn btn-sm btn-primary" onclick="viewProduct(${p.id})">
+                  <i class="fas fa-eye"></i> View
+                </button>
+              </div>
+            </div>
+          `).join('');
+
+          document.getElementById('relatedProducts').innerHTML = html;
+        }
+      } catch (error) {
+        reportClientError('Error loading related products', error, 'Unable to load related products.');
+      }
+    }
+
+    function increaseQuantity() {
+      const qty = document.getElementById('quantity');
+      qty.value = parseInt(qty.value) + 1;
+    }
+
+    function decreaseQuantity() {
+      const qty = document.getElementById('quantity');
+      if (parseInt(qty.value) > 1) {
+        qty.value = parseInt(qty.value) - 1;
+      }
+    }
+
+    async function addToCart() {
+      try {
+        const token = localStorage.getItem(TOKEN_KEY);
+        if (!token) {
+          window.location.href = 'login.html';
+          return;
+        }
+
+        const quantity = parseInt(document.getElementById('quantity').value);
+        const successMsg = document.getElementById('successMessage');
+        const errorMsg = document.getElementById('errorMessage');
+
+        successMsg.style.display = 'none';
+        errorMsg.style.display = 'none';
+
+        const response = await fetch(`${API_BASE_URL}/cart/add_item/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...getAuthHeader()
+          },
+          body: JSON.stringify({
+            product_id: product.id,
+            quantity: quantity
+          })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          successMsg.style.display = 'block';
+          document.getElementById('quantity').value = 1;
+
+          setTimeout(() => {
+            successMsg.style.display = 'none';
+          }, 3000);
+        } else {
+          errorMsg.textContent = data.error || 'Failed to add to cart';
+          errorMsg.style.display = 'block';
+        }
+      } catch (error) {
+        reportClientError('Error adding to cart', error, 'Unable to add product to cart.');
+        document.getElementById('errorMessage').textContent = 'An error occurred';
+        document.getElementById('errorMessage').style.display = 'block';
+      }
+    }
+
+    function goToCart() {
+      window.location.href = 'cart.html';
+    }
+
+    function viewProduct(productId) {
+      window.location.href = `product-detail.html?id=${productId}`;
+    }
+  </script>
+</body>
+</html>

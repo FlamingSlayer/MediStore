@@ -4,20 +4,20 @@
 *$py.class
 
 # Virtual environments
-medicare_backend/venv/
+MediStore_Backend/venv/
 .venv/
 venv/
 
 # Environment files
-medicare_backend/.env
+MediStore_Backend/.env
 .env
 
 # Local databases
-medicare_backend/db.sqlite3
+MediStore_Backend/db.sqlite3
 *.sqlite3
 
 # Build/static artifacts
-medicare_backend/staticfiles/
+MediStore_Backend/staticfiles/
 media/
 
 # OS/editor files

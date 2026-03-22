@@ -79,7 +79,7 @@ MySQL Database
 
 ```
 MediStore/
-├── medicare_backend/           # Django backend application
+├── MediStore_Backend/           # Django backend application
 │   ├── api/                    # REST API endpoints
 │   │   ├── models.py           # Data models (Product, Order, etc.)
 │   │   ├── serializers.py      # DRF serializers
@@ -135,7 +135,7 @@ MediStore/
 ### 1️⃣ Clone the Repository
 ```bash
 git clone https://github.com/FlamingSlayer/MediStore.git
-cd MediStore/medicare_backend
+cd MediStore/MediStore_Backend
 ```
 
 ### 2️⃣ Set Up Backend Environment
@@ -156,7 +156,7 @@ pip install -r requirements.txt
 
 ### 4️⃣ Configure Environment
 ```bash
-# Create .env file in medicare_backend/
+# Create .env file in MediStore_Backend/
 # Set SECRET_KEY, DEBUG, DATABASE_URL, and RAZORPAY credentials
 ```
 
@@ -249,11 +249,11 @@ python manage.py test api           # Run API tests only
 3. Connect GitHub repository
 4. Build Command:
 ```bash
-cd medicare_backend && pip install -r requirements.txt && python manage.py migrate
+cd MediStore_Backend && pip install -r requirements.txt && python manage.py migrate
 ```
 5. Start Command:
 ```bash
-cd medicare_backend && gunicorn config.wsgi:application
+cd MediStore_Backend && gunicorn config.wsgi:application
 ```
 
 ### Deploy to Railway

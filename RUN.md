@@ -3,7 +3,7 @@
 ## 1. Open backend folder
 
 ```powershell
-Set-Location "c:/Users/......./medicare_backend"
+Set-Location "c:/Users/......./MediStore_Backend"
 ```
 
 ## 2. Install dependencies

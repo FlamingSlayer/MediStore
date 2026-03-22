@@ -1,56 +1,45 @@
 # 💊 MediStore – Online Pharmacy Platform
 
-> A full-stack e-pharmacy solution that lets users browse medicines, upload prescriptions, manage orders, and track deliveries. The system provides separate dashboards for customers and administrators, handles coupon discounts, integrates Razorpay payments, and works as a Progressive Web App (PWA).
-
-![Build](https://img.shields.io/badge/build-passing-brightgreen?style=flat-square)
-![Python Version](https://img.shields.io/badge/python-3.9%2B-blue?style=flat-square)
-![GitHub last commit](https://img.shields.io/github/last-commit/FlamingSlayer/MediStore?style=flat-square)
-![GitHub issues](https://img.shields.io/github/issues/FlamingSlayer/MediStore?style=flat-square)
-![GitHub license](https://img.shields.io/github/license/FlamingSlayer/MediStore?style=flat-square)
+> A full‑stack e‑pharmacy solution that lets users browse medicines, upload prescriptions, manage orders, and track deliveries. The system provides separate dashboards for customers and administrators, handles coupon discounts, integrates Razorpay payments, and works as a Progressive Web App (PWA).
 
 ---
 
 ## ✨ Features
 
 ### 👤 For Customers
-- Secure user registration and login with token-based authentication
-- Browse and filter medicines by category, type (Rx/OTC), and price range
-- View detailed product information with reviews and ratings
-- Search with autocomplete suggestions
-- Add to cart, adjust quantities, and manage cart
+- Secure registration / login with token‑based authentication
+- Browse medicines with search, filters (category, Rx/OTC, price range), and autocomplete
+- View detailed product information, reviews, and ratings
+- Add to cart, adjust quantities, and proceed to checkout
 - Apply coupon codes for discounts
-- Upload and track prescription review status
+- Upload prescriptions and track review status
 - Manage saved delivery addresses
 - Place orders (COD or online via Razorpay)
 - Track order lifecycle (placed → confirmed → shipped → delivered)
-- Request order cancellation and returns
-- View order history and order details
+- Request order cancellation / return
+- View order history and download past prescriptions
 
 ### 👑 For Administrators
-- Comprehensive system overview dashboard
-- Full product management (CRUD operations)
-- Manage all orders and process cancellations/returns
-- User management: list all users, grant/revoke staff access
-- Prescription review and approval workflow with notes
-- System configuration and settings
-- View analytics and performance metrics
+- Dedicated admin dashboard with key metrics (orders, users, revenue, pending prescriptions)
+- Full product management (add, edit, delete products)
+- Order management: update status, view details, process cancellations/returns
+- User management: list all users, promote to staff
+- Prescription review: approve or reject with notes
+- Inventory overview and low‑stock alerts (optional)
 
 ### 🛠️ Additional Capabilities
 - Email notifications (welcome, order confirmation, status changes, prescription review)
-- Password reset via secure email link
+- Password reset via email
 - Progressive Web App (PWA) – installable on mobile devices
-- Admin dashboard charts (monthly orders/revenue) using Chart.js
-- Product reviews (purchaser-gated)
+- Admin dashboard chart (monthly orders/revenue) using Chart.js
+- Product reviews (only users who purchased can review)
 
 ---
 
 ## 🏗️ System Architecture
 
 ```
-Frontend (HTML/CSS/JS)
-        │
-        ▼
-REST API (Token Auth)
+Browser (HTML/CSS/JS)
         │
         ▼
 Django Backend (DRF)
@@ -63,15 +52,16 @@ MySQL Database
 
 ## 🛠️ Tech Stack
 
-| Layer              | Technology                    | Purpose                        |
-|--------------------|-------------------------------|--------------------------------|
-| **Frontend**       | HTML5, CSS3, Vanilla JavaScript | User interface and interactions |
-| **Backend**        | Django, Django REST Framework | API development                |
-| **Database**       | MySQL                         | Data persistence and storage   |
-| **Authentication** | DRF Token Authentication      | Secure API access              |
-| **Payments**       | Razorpay                      | Online payment processing      |
-| **Styling**        | Custom CSS, Bootstrap Icons   | Modern responsive UI           |
-| **PWA**            | Service Worker + Manifest     | Offline support, installability |
+| Layer        | Technology                         | Purpose                          |
+|--------------|------------------------------------|----------------------------------|
+| **Frontend** | HTML5, CSS3, Vanilla JavaScript    | User interface, dynamic content  |
+| **Backend**  | Django, Django REST Framework (DRF)| API development, business logic  |
+| **Database** | MySQL                              | Data persistence                 |
+| **Auth**     | DRF TokenAuthentication            | Secure API access                |
+| **Payments** | Razorpay                           | Online payment processing        |
+| **Styling**  | Custom CSS (responsive, dark mode) | Modern, accessible UI            |
+| **Icons**    | Font Awesome 6                     | Visual enhancements              |
+| **PWA**      | Service Worker + Manifest          | Offline support, installability  |
 
 ---
 
@@ -80,45 +70,37 @@ MySQL Database
 ```
 MediStore/
 ├── medicare_backend/           # Django backend application
-│   ├── api/                    # REST API endpoints
-│   │   ├── models.py           # Data models (Product, Order, etc.)
-│   │   ├── serializers.py      # DRF serializers
-│   │   ├── api_views.py        # API viewsets
-│   │   ├── views.py            # Template views
-│   │   ├── authentication.py   # Auth utilities
-│   │   └── migrations/         # Database migrations
-│   ├── accounts/               # User authentication app
-│   ├── config/                 # Django settings
-│   ├── manage.py               # Django CLI
-│   ├── requirements.txt        # Python dependencies
-│   ├── start-dev.ps1           # PowerShell launcher
-│   └── .env                    # Environment variables (not committed)
-├── templates/                  # HTML templates
-│   ├── index.html              # Landing page
-│   ├── products.html           # Product listings
-│   ├── product-detail.html     # Single product view
-│   ├── cart.html               # Shopping cart
-│   ├── checkout.html           # Checkout flow
-│   ├── login.html              # Login page
-│   ├── register.html           # Registration page
-│   ├── dashboard.html          # Customer dashboard
-│   ├── admin.html              # Admin dashboard
-│   ├── upload-prescription.html # Prescription upload
-│   ├── order-detail.html       # Order details & tracking
-│   └── order-success.html      # Order confirmation
-├── static/                     # Static assets
-│   ├── css/                    # Stylesheets
+│   ├── api/                    # DRF API app (models, views, serializers)
+│   ├── config/                 # Django settings, urls
+│   ├── manage.py
+│   ├── requirements.txt
+│   ├── start-dev.ps1           # PowerShell launcher (Windows)
+│   └── .env                    # Environment variables
+├── static/                     # Static assets (CSS, JS, SVG)
+│   ├── css/
 │   │   └── styles.css          # Main stylesheet
-│   ├── js/                     # JavaScript files
-│   │   ├── app.js              # Core application logic
+│   ├── js/
+│   │   ├── app.js              # Core utilities & API helpers
 │   │   ├── config.js           # API configuration
 │   │   └── init.js             # Global initialization
 │   ├── manifest.json           # PWA manifest
 │   ├── service-worker.js       # Offline support
 │   └── icons/                  # App icons (192x192, 512x512)
-├── .gitignore                  # Git exclusion rules
-├── LICENSE                     # MIT License
-├── RUN.md                      # Detailed setup & run guide
+├── templates/                  # HTML templates
+│   ├── index.html              # Landing page
+│   ├── products.html           # Product listing
+│   ├── product-detail.html     # Single product view
+│   ├── cart.html               # Shopping cart
+│   ├── checkout.html           # Checkout flow
+│   ├── dashboard.html          # Customer dashboard
+│   ├── admin.html              # Admin dashboard
+│   ├── login.html              # Login page
+│   ├── register.html           # Registration page
+│   ├── upload-prescription.html# Prescription upload
+│   ├── order-detail.html       # Order details & tracking
+│   └── order-success.html      # Order confirmation
+├── RUN.md                      # Detailed run instructions
+├── .gitignore
 └── README.md                   # This file
 ```
 
@@ -128,17 +110,19 @@ MediStore/
 
 ### Prerequisites
 - Python 3.9 or higher
-- pip (Python package manager)
-- MySQL 5.7+ (or use .env to configure database)
+- pip
+- MySQL 5.7+ (or SQLite for development)
 - Git
 
 ### 1️⃣ Clone the Repository
+
 ```bash
 git clone https://github.com/FlamingSlayer/MediStore.git
 cd MediStore/medicare_backend
 ```
 
-### 2️⃣ Set Up Backend Environment
+### 2️⃣ Set Up Virtual Environment
+
 ```bash
 # Windows
 python -m venv venv
@@ -150,12 +134,15 @@ source venv/bin/activate
 ```
 
 ### 3️⃣ Install Dependencies
+
 ```bash
 pip install -r requirements.txt
 ```
 
 ### 4️⃣ Configure Environment
+
 Create a `.env` file in `medicare_backend/` directory:
+
 ```env
 SECRET_KEY=your-strong-secret-key-here
 DEBUG=True
@@ -175,171 +162,72 @@ RAZORPAY_KEY_ID=your_test_key_id
 RAZORPAY_KEY_SECRET=your_test_secret
 ```
 
-### 5️⃣ Initialize Database
+### 5️⃣ Run Database Migrations
+
 ```bash
 python manage.py migrate
-python manage.py createsuperuser
+python manage.py createsuperuser    # Create admin user
 ```
 
 ### 6️⃣ Seed Sample Data (Optional)
+
 ```bash
 python manage.py seed_sample_data --if-empty
 ```
 
-### 7️⃣ Run Development Server
+### 7️⃣ Start Development Server
+
 ```bash
-python manage.py runserver
-```
-
-- Access: [http://localhost:8000](http://localhost:8000)
-- Admin: [http://localhost:8000/admin](http://localhost:8000/admin)
-
-**On Windows (recommended):**
-```powershell
+# Recommended (Windows)
 .\start-dev.ps1
+
+# Manual
+python manage.py runserver 127.0.0.1:8000
 ```
+
+Open:
+- Main app: http://127.0.0.1:8000
+- Admin panel: http://127.0.0.1:8000/admin
 
 ---
 
-## 🏗️ System Architecture
+## 📚 API Overview
 
-```
-Frontend (HTML/CSS/JS)
-        │
-        ▼
-REST API (Token Auth)
-        │
-        ▼
-Django Backend (DRF)
-        │
-        ▼
-MySQL Database
-```
+**Base path:** `/api/`  
+**Authentication:** DRF Token (header: `Authorization: Token <token>`)
 
----
-
-## 🛠️ Tech Stack
-
-| Layer              | Technology                    | Purpose                        |
-|--------------------|-------------------------------|--------------------------------|
-| **Frontend**       | HTML5, CSS3, Vanilla JavaScript | User interface and interactions |
-| **Backend**        | Django, Django REST Framework | API development                |
-| **Database**       | MySQL                         | Data persistence and storage   |
-| **Authentication** | DRF Token Authentication      | Secure API access              |
-| **Payments**       | Razorpay                      | Online payment processing      |
-| **Styling**        | Custom CSS, Bootstrap Icons   | Modern responsive UI           |
-| **PWA**            | Service Worker + Manifest     | Offline support, installability |
-
----
-
-## 📁 Project Structure
-
-```
-MediStore/
-├── medicare_backend/           # Django backend application
-│   ├── api/                    # REST API endpoints
-│   │   ├── models.py           # Data models (Product, Order, etc.)
-│   │   ├── serializers.py      # DRF serializers
-│   │   ├── api_views.py        # API viewsets
-│   │   ├── views.py            # Template views
-│   │   ├── authentication.py   # Auth utilities
-│   │   └── migrations/         # Database migrations
-│   ├── accounts/               # User authentication app
-│   ├── config/                 # Django settings
-│   ├── manage.py               # Django CLI
-│   ├── requirements.txt        # Python dependencies
-│   ├── start-dev.ps1           # PowerShell launcher
-│   └── .env                    # Environment variables (not committed)
-├── templates/                  # HTML templates
-│   ├── index.html              # Landing page
-│   ├── products.html           # Product listings
-│   ├── product-detail.html     # Single product view
-│   ├── cart.html               # Shopping cart
-│   ├── checkout.html           # Checkout flow
-│   ├── login.html              # Login page
-│   ├── register.html           # Registration page
-│   ├── dashboard.html          # Customer dashboard
-│   ├── admin.html              # Admin dashboard
-│   ├── upload-prescription.html # Prescription upload
-│   ├── order-detail.html       # Order details & tracking
-│   └── order-success.html      # Order confirmation
-├── static/                     # Static assets
-│   ├── css/                    # Stylesheets
-│   │   └── styles.css          # Main stylesheet
-│   ├── js/                     # JavaScript files
-│   │   ├── app.js              # Core application logic
-│   │   ├── config.js           # API configuration
-│   │   └── init.js             # Global initialization
-│   ├── manifest.json           # PWA manifest
-│   ├── service-worker.js       # Offline support
-│   └── icons/                  # App icons (192x192, 512x512)
-├── .gitignore                  # Git exclusion rules
-├── LICENSE                     # MIT License
-├── RUN.md                      # Detailed setup & run guide
-└── README.md                   # This file
-```
-
----
-
-## 📚 API Documentation
-
-### Authentication Endpoints
-
-| Method | Endpoint           | Description                        |
-|--------|--------------------|------------------------------------|
-| POST   | /api/auth/login/   | User login, returns auth token     |
-| POST   | /api/auth/register/| Register new user                  |
-
-### Medicine & Product Endpoints
-
-| Method | Endpoint                           | Description                  | Access         |
-|--------|------------------------------------|-----------------------------|-----------------|
-| GET    | /api/products/                    | List all medicines          | All users       |
-| GET    | /api/products/{id}/               | Get product details         | All users       |
-| GET    | /api/products/featured/           | List featured/discounted    | All users       |
-| GET    | /api/products/autocomplete/       | Search autocomplete         | All users       |
-| GET    | /api/categories/                  | List medicine categories    | All users       |
-
-### Cart & Order Endpoints
-
-| Method | Endpoint                      | Description                | Access       |
-|--------|-------------------------------|-----------------------------|---------------|
-| GET    | /api/cart/                   | View user's cart            | Authenticated |
-| POST   | /api/cart/add_item/          | Add item to cart            | Authenticated |
-| POST   | /api/cart/update_item/       | Update item quantity        | Authenticated |
-| POST   | /api/cart/remove_item/       | Remove item from cart       | Authenticated |
-| GET    | /api/orders/                 | List user's orders          | Authenticated |
-| POST   | /api/orders/                 | Create order from cart      | Authenticated |
-| POST   | /api/orders/{id}/payment/    | Create Razorpay payment     | Authenticated |
-| POST   | /api/orders/{id}/callback/   | Razorpay payment callback   | Public        |
-| PATCH  | /api/orders/{id}/status/     | Update order status         | Admin         |
-| POST   | /api/orders/{id}/return/     | Request return              | Authenticated |
-
-### Additional Endpoints
-
-| Method | Endpoint                    | Description                       | Access        |
-|--------|-----------------------------|------------------------------------|----------------|
-| POST   | /api/prescriptions/         | Upload prescription                | Authenticated |
-| PATCH  | /api/prescriptions/{id}/    | Review prescription (admin)        | Admin         |
-| GET    | /api/addresses/             | List user's addresses              | Authenticated |
-| POST   | /api/addresses/             | Add new address                    | Authenticated |
-| GET    | /api/reviews/               | List product reviews               | All users     |
-| POST   | /api/reviews/               | Create review (purchaser only)     | Authenticated |
-| POST   | /api/apply_coupon/          | Apply and validate coupon          | Authenticated |
-
-### Admin Endpoints
-
-| Method | Endpoint              | Description                    | Access |
-|--------|------------------------|-------------------------------|--------|
-| GET    | /api/admin/users/     | List all users                 | Admin  |
-| GET    | /api/admin/stats/     | Dashboard statistics           | Admin  |
-| GET    | /api/admin/stats/chart/ | Monthly orders/revenue chart  | Admin  |
+| Endpoint | Methods | Description |
+|----------|---------|-------------|
+| `/auth/login/` | POST | Login, returns auth token |
+| `/auth/register/` | POST | Register new user |
+| `/products/` | GET, POST | List / create products |
+| `/products/featured/` | GET | Discounted products |
+| `/products/{id}/autocomplete/` | GET | Search autocomplete |
+| `/categories/` | GET | Product categories |
+| `/cart/` | GET | View user's cart |
+| `/cart/add_item/` | POST | Add product to cart |
+| `/cart/update_item/` | POST | Update item quantity |
+| `/cart/remove_item/` | POST | Remove item from cart |
+| `/orders/` | GET, POST | List orders / create from cart |
+| `/orders/{id}/create_payment/` | POST | Create Razorpay payment |
+| `/orders/{id}/payment_callback/` | POST | Razorpay callback handler |
+| `/orders/{id}/update_status/` | POST | Change order status |
+| `/orders/{id}/request_return/` | POST | Request return |
+| `/prescriptions/` | GET, POST | List / upload prescriptions |
+| `/prescriptions/{id}/` | PATCH | Review prescription (admin) |
+| `/addresses/` | GET, POST | Manage delivery addresses |
+| `/reviews/` | GET, POST | Product reviews |
+| `/apply_coupon/` | POST | Validate & apply coupon |
+| `/admin/users/` | GET | List all users (admin only) |
+| `/admin/stats/` | GET | Dashboard statistics |
+| `/admin/stats/chart/` | GET | Monthly orders/revenue chart |
 
 ---
 
 ## 🧪 Testing
+
 ```bash
-python manage.py check              # Django system check
+python manage.py check              # Django health check
 python manage.py test               # Run all tests
 python manage.py test api           # Run API tests only
 ```
@@ -348,89 +236,67 @@ python manage.py test api           # Run API tests only
 
 ## 🚢 Deployment
 
-### Deploy to Render
-1. Push code to GitHub
-2. Create Web Service on Render
-3. Connect GitHub repository
-4. Build Command:
-```bash
-cd medicare_backend && pip install -r requirements.txt && python manage.py migrate
-```
-5. Start Command:
-```bash
-cd medicare_backend && gunicorn config.wsgi:application
-```
-
-### Deploy to Railway
-```bash
-npm i -g @railway/cli
-railway login
-railway init
-railway up
-```
+### Render / Railway / PythonAnywhere
+1. Push code to GitHub repository
+2. Set environment variables in platform dashboard
+3. Configure MySQL database (cloud service or managed)
+4. Update `ALLOWED_HOSTS` and set `DEBUG=False`
+5. Collect static files:
+   ```bash
+   python manage.py collectstatic
+   ```
+6. Use production WSGI server:
+   ```bash
+   gunicorn config.wsgi:application
+   ```
+7. Configure media folder for uploads
 
 ---
 
-## 👥 Default Users for Testing
+## 🔐 Security Notes
 
-After seeding sample data, log in with:
-
-| Role       | Email                    | Password      | Access Level         |
-|------------|--------------------------|---------------|----------------------|
-| Admin      | admin@example.com        | admin123      | Full system access   |
-| Customer   | customer@example.com     | customer123   | Customer features    |
-
----
-
-## 🐛 Troubleshooting
-
-| Issue                      | Solution                                      |
-|----------------------------|-----------------------------------------------|
-| ModuleNotFoundError        | Activate virtual environment, run pip install |
-| Database connection error  | Check .env file, verify MySQL is running      |
-| Port 8000 in use           | Use `python manage.py runserver 8001`         |
-| Static files not loading   | Run `python manage.py collectstatic`          |
-| CORS errors                | Check CORS_ALLOWED_ORIGINS in settings        |
-| Prescriptions not uploading | Verify media folder exists and has permissions |
+- ⚠️ **Never commit** `.env` file – it contains secrets
+- In production, set `DEBUG=False` and restrict `ALLOWED_HOSTS`
+- Use strong passwords and rotate secret keys regularly
+- Store payment keys securely in environment variables only
+- For production email, configure a real SMTP backend
+- Enable HTTPS in production
+- Use secure session cookies: `SESSION_COOKIE_SECURE=True`
+- Add CSRF protection and rate limiting as needed
 
 ---
 
 ## 🤝 Contributing
+
 1. Fork the repository
-2. Create feature branch:
-```bash
-git checkout -b feature/AmazingFeature
-```
-3. Commit changes:
-```bash
-git commit -m 'Add AmazingFeature'
-```
-4. Push branch:
-```bash
-git push origin feature/AmazingFeature
-```
-5. Open a Pull Request
+2. Create a feature branch: `git checkout -b feature/your-feature`
+3. Commit changes: `git commit -m "Add your feature"`
+4. Push to branch: `git push origin feature/your-feature`
+5. Open a Pull Request with a clear description
+
+---
+
+## 👥 Default Test Users
+
+After seeding sample data, log in with:
+
+| Role | Email | Password |
+|------|-------|----------|
+| Admin | admin@example.com | admin123 |
+| Customer | customer@example.com | customer123 |
 
 ---
 
 ## 🙏 Acknowledgments
-- Django team for the excellent framework
-- Django REST Framework community
+
+- Django & Django REST Framework community
 - Razorpay for payment gateway
-- Contributors and beta testers
-- Open source community for invaluable tools
+- FontAwesome for icons
+- All contributors and testers
 
 ---
 
 ## 📞 Support
-- Report Issues: [GitHub Issues](https://github.com/FlamingSlayer/MediStore/issues)
-- Discussion: [GitHub Discussions](https://github.com/FlamingSlayer/MediStore/discussions)
-- Contact: [Telegram](https://t.me/FlamingSlayer_Bot)
-
----
-
-Built with ❤️ by **VidhyanJha**  
-If you find this project helpful, please give it a ⭐ on GitHub!
 
 - **Issues:** [GitHub Issues](https://github.com/FlamingSlayer/MediStore/issues)
 - **Discussions:** [GitHub Discussions](https://github.com/FlamingSlayer/MediStore/discussions)

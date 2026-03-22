@@ -1,7 +1,7 @@
 # 💊 MediStore - Online Pharmacy Platform
 
-> A full-stack e-pharmacy solution that allows users to browse medicines, upload prescriptions, manage orders, and track deliveries. The system provides separate dashboards for customers and administrators and manages authentication, ordering, and prescription review efficiently.
-
+> MediStore is a modern, full‑stack e‑pharmacy platform that allows customers to order medicines online, upload prescriptions, and track deliveries in real time. It features a responsive frontend (HTML/CSS/JS) that consumes a robust Django REST API. The system includes separate dashboards for customers and administrators, supports coupon discounts, integrates Razorpay for online payments, and sends email notifications for orders and prescription reviews. Built with security and usability in mind, MediStore also works as a Progressive Web App (PWA) for mobile users.
+> 
 ![Build](https://img.shields.io/badge/build-passing-brightgreen?style=flat-square)
 ![Python Version](https://img.shields.io/badge/python-3.9%2B-blue?style=flat-square)
 ![GitHub last commit](https://img.shields.io/github/last-commit/FlamingSlayer/MediStore?style=flat-square)

@@ -557,17 +557,308 @@ function formatProduct(product) {
     discountedPrice: product.discount_price,
     hasDiscount: product.discount_percentage > 0,
     displayDiscount: product.discount_percentage ? `${product.discount_percentage}%` : null
-  };
-}
-
-/**
- * Initialize page
- */
-document.addEventListener('DOMContentLoaded', () => {
-  setupThemeToggle();
-  setupMobileMenu();
-  checkAuth();
 });
+  // ==================== PHASE 1: FORM VALIDATION & INTERACTION ====================
+
+  /**
+   * Initialize floating labels on form group
+   */
+  function initFloatingLabel(formGroup) {
+    const input = formGroup.querySelector('input, textarea');
+    if (!input) return;
+
+    formGroup.classList.add('floating');
+
+    input.addEventListener('focus', () => {
+      formGroup.classList.add('has-focus');
+    });
+
+    input.addEventListener('blur', () => {
+      if (!input.value) {
+        formGroup.classList.remove('has-focus');
+      }
+    });
+  }
+
+  /**
+   * Initialize all floating labels on page
+   */
+  function initFloatingLabels() {
+    const formGroups = document.querySelectorAll('.form-group');
+    formGroups.forEach(initFloatingLabel);
+  }
+
+  /**
+   * Validate email
+   */
+  function validateEmail(email) {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
+  }
+
+  /**
+   * Validate password strength
+   */
+  function getPasswordStrength(password) {
+    if (!password) return 'empty';
+
+    let strength = 0;
+    if (password.length >= 8) strength++;
+    if (password.length >= 12) strength++;
+    if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
+    if (/\d/.test(password)) strength++;
+    if (/[^a-zA-Z\d]/.test(password)) strength++;
+
+    if (strength === 0 || strength === 1) return 'weak';
+    if (strength === 2 || strength === 3) return 'medium';
+    return 'strong';
+  }
+
+  /**
+   * Update password strength meter
+   */
+  function updatePasswordStrength(inputElement, strengthContainerId) {
+    const strength = getPasswordStrength(inputElement.value);
+    const container = document.getElementById(strengthContainerId);
+    if (!container) return;
+
+    const bars = container.querySelectorAll('.strength-bar');
+    const text = container.querySelector('.strength-text');
+
+    bars.forEach(bar => {
+      bar.classList.remove('weak', 'medium', 'strong');
+      bar.classList.add('empty');
+    });
+
+    const strengthMap = { weak: 1, medium: 2, strong: 3 };
+    const barCount = strengthMap[strength] || 0;
+    for (let i = 0; i < barCount; i++) {
+      bars[i]?.classList.add(strength);
+      bars[i]?.classList.remove('empty');
+    }
+
+    if (text) {
+      text.textContent = strength.charAt(0).toUpperCase() + strength.slice(1);
+      text.className = `strength-text ${strength}`;
+    }
+  }
+
+  /**
+   * Validate form field
+   */
+  function validateField(field) {
+    const formGroup = field.closest('.form-group');
+    if (!formGroup) return true;
+
+    const type = field.type || field.tagName.toLowerCase();
+    let isValid = true;
+    let errorMsg = '';
+
+    if (field.hasAttribute('required') && !field.value.trim()) {
+      isValid = false;
+      errorMsg = 'This field is required';
+    } else if (type === 'email' && field.value && !validateEmail(field.value)) {
+      isValid = false;
+      errorMsg = 'Please enter a valid email';
+    } else if (type === 'password' && field.value && getPasswordStrength(field.value) === 'weak') {
+      isValid = false;
+      errorMsg = 'Password is too weak';
+    }
+
+    // Update form group classes
+    formGroup.classList.remove('error', 'success');
+    let errorElement = formGroup.querySelector('.error-text');
+    if (errorElement) errorElement.remove();
+
+    if (isValid && field.value) {
+      formGroup.classList.add('success');
+    } else if (!isValid) {
+      formGroup.classList.add('error');
+      if (errorMsg) {
+        const span = document.createElement('span');
+        span.className = 'error-text';
+        span.textContent = errorMsg;
+        formGroup.appendChild(span);
+      }
+    }
+
+    return isValid;
+  }
+
+  /**
+   * Initialize form validation
+   */
+  function initFormValidation(formSelector) {
+    const form = document.querySelector(formSelector);
+    if (!form) return;
+
+    const inputs = form.querySelectorAll('input, textarea, select');
+    inputs.forEach(input => {
+      input.addEventListener('blur', () => validateField(input));
+      input.addEventListener('input', () => {
+        if (input.closest('.form-group').classList.contains('error')) {
+          validateField(input);
+        }
+      });
+    });
+
+    form.addEventListener('submit', (e) => {
+      let isFormValid = true;
+      inputs.forEach(input => {
+        if (!validateField(input)) {
+          isFormValid = false;
+        }
+      });
+
+      if (!isFormValid) {
+        e.preventDefault();
+        showToast('Please correct the errors above', 'error');
+      }
+    });
+  }
+
+  /* ==================== Skeleton Loader Generator ====================*/
+
+  /**
+   * Create skeleton loader for products grid
+   */
+  function createSkeletonProductCard() {
+    const card = document.createElement('div');
+    card.className = 'skeleton-product-card';
+    card.innerHTML = `
+      <div class="skeleton skeleton-product-image"></div>
+      <div class="skeleton-product-info">
+        <div class="skeleton skeleton-product-title"></div>
+        <div class="skeleton skeleton-product-price"></div>
+        <div class="skeleton skeleton-product-button"></div>
+      </div>
+    `;
+    return card;
+  }
+
+  /**
+   * Show skeleton loaders for product grid
+   */
+  function showSkeletonLoaders(containerId, count = 12) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    container.innerHTML = '';
+    const grid = document.createElement('div');
+    grid.className = 'skeleton-product-grid';
+
+    for (let i = 0; i < count; i++) {
+      grid.appendChild(createSkeletonProductCard());
+    }
+
+    container.appendChild(grid);
+  }
+
+  /* ==================== Quick Add to Cart ====================*/
+
+  /**
+   * Handle quick add to cart (from product card hover)
+   */
+  async function quickAddToCart(productId, e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const token = localStorage.getItem(TOKEN_KEY);
+    if (!token) {
+      showToast('Please login first', 'info');
+      window.location.href = 'login.html';
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/cart/add/`, {
+        method: 'POST',
+        headers: {
+          ...getAuthHeader(),
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          product_id: productId,
+          quantity: 1
+        })
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        showToast(`Added to cart!`, 'success');
+        updateCartCount();
+      } else {
+        showToast(data.error || 'Failed to add to cart', 'error');
+      }
+    } catch (error) {
+      reportClientError('quickAddToCart', error, 'Failed to add to cart');
+    }
+  }
+
+  /**
+   * Update cart count in header
+   */
+  function updateCartCount() {
+    // Placeholder for cart badge update functionality
+  }
+
+  /* ==================== Mobile Bottom Navigation ====================*/
+
+  /**
+   * Initialize mobile bottom navigation
+   */
+  function initBottomNav() {
+    const bottomNav = document.getElementById('bottomNav');
+    if (!bottomNav) return;
+
+    const navItems = bottomNav.querySelectorAll('.bottom-nav-item');
+    navItems.forEach(item => {
+      item.addEventListener('click', () => {
+        navItems.forEach(i => i.classList.remove('active'));
+        item.classList.add('active');
+      });
+    });
+
+    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+    navItems.forEach(item => {
+      const href = item.getAttribute('href');
+      if (href && href.endsWith(currentPage)) {
+        item.classList.add('active');
+      }
+    });
+  }
+
+  /* ==================== Loading State Management ====================*/
+
+  /**
+   * Set button loading state
+   */
+  function setButtonLoading(button, isLoading = true) {
+    if (isLoading) {
+      button.classList.add('loading');
+      button.disabled = true;
+      button.dataset.originalText = button.textContent;
+    } else {
+      button.classList.remove('loading');
+      button.disabled = false;
+      if (button.dataset.originalText) {
+        button.textContent = button.dataset.originalText;
+      }
+    }
+  }
+
+  /**
+   * Initialize page
+   */
+  document.addEventListener('DOMContentLoaded', () => {
+    setupThemeToggle();
+    setupMobileMenu();
+    checkAuth();
+    initFloatingLabels();
+    initBottomNav();
+  });
+
+  // ==================== Export for use in modules ====================
 
 // ==================== Export for use in modules ====================
 // These can be imported in other scripts or used directly

@@ -17,11 +17,11 @@
     <div class="container">
       <div class="header-inner">
         <a href="index.html" class="logo">
-          <div class="logo-icon"><i class="fas fa-pills"></i></div>
+          <div class="logo-icon"><i class="fas fa-capsules"></i></div>
           <span class="logo-text">MediStore</span>
         </a>
         
-        <button class="mobile-menu-btn" id="mobileMenuBtn">
+        <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Open navigation menu" title="Menu">
           <i class="fas fa-bars"></i>
         </button>
         
@@ -33,7 +33,7 @@
         </nav>
         
         <div class="header-controls">
-          <button class="theme-toggle" id="themeToggle" title="Toggle dark mode">
+          <button class="theme-toggle" id="themeToggle" title="Toggle dark mode" aria-label="Toggle dark mode">
             <i class="fas fa-moon"></i>
           </button>
           
@@ -45,7 +45,7 @@
           <div id="user-nav" style="display: none;">
             <span class="user-greeting">Hi, <span id="user-name">User</span></span>
             <a href="dashboard.html" class="btn btn-primary">Dashboard</a>
-            <button id="logoutBtn" class="btn-logout" title="Logout">
+            <button id="logoutBtn" class="btn-logout" title="Logout" aria-label="Logout">
               <i class="fas fa-sign-out-alt"></i>
             </button>
           </div>
@@ -61,6 +61,18 @@
         <a href="index.html">Home</a> / <span>Shop</span>
       </div>
     </section>
+
+    <div class="mobile-search-sticky">
+      <div class="container">
+        <input
+          type="text"
+          id="searchInputMobile"
+          class="search-input"
+          placeholder="Search medicines..."
+          aria-label="Search medicines"
+        >
+      </div>
+    </div>
 
     <!-- Shop Container -->
     <div class="container shop-container">
@@ -134,8 +146,7 @@
 
         <!-- Loading State -->
         <div id="loadingState" style="display: none; text-align: center; padding: 40px;">
-          <div class="spinner"></div>
-          <p>Loading products...</p>
+          <div class="skeleton-product-grid" id="productsSkeleton"></div>
         </div>
 
         <!-- No Results -->
@@ -185,12 +196,47 @@
     </div>
   </footer>
 
+  <nav class="bottom-nav" id="bottomNav" aria-label="Mobile quick navigation">
+    <div class="bottom-nav-content">
+      <a href="index.html" class="bottom-nav-item" aria-label="Home">
+        <i class="fas fa-house"></i>
+        <span>Home</span>
+      </a>
+      <a href="products.html" class="bottom-nav-item" aria-label="Shop">
+        <i class="fas fa-store"></i>
+        <span>Shop</span>
+      </a>
+      <a href="cart.html" class="bottom-nav-item" aria-label="Cart">
+        <i class="fas fa-cart-shopping"></i>
+        <span>Cart</span>
+      </a>
+      <a href="dashboard.html" class="bottom-nav-item" aria-label="Dashboard">
+        <i class="fas fa-chart-line"></i>
+        <span>Dashboard</span>
+      </a>
+    </div>
+  </nav>
+
   <script src="/static/js/config.js"></script>
   <script src="/static/js/init.js"></script>
   <script src="/static/js/app.js"></script>
   <script>
     let allProducts = [];
     let currentPage = 1;
+
+    function buildFallbackImage(label = 'Medicine') {
+      const safe = String(label || 'Medicine').slice(0, 18);
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600"><defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#1f2f57"/><stop offset="100%" stop-color="#14213f"/></linearGradient><linearGradient id="pill" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#22d3ee"/><stop offset="100%" stop-color="#60a5fa"/></linearGradient></defs><rect width="600" height="600" fill="url(#bg)"/><rect x="190" y="250" width="220" height="100" rx="32" fill="url(#pill)"/><rect x="280" y="180" width="40" height="240" rx="14" fill="#8bf5ff" fill-opacity="0.9"/><text x="300" y="500" font-size="38" text-anchor="middle" fill="#d9e7ff" font-family="Segoe UI, Arial, sans-serif">${safe}</text></svg>`;
+      return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+    }
+
+    function getProductImageSrc(product) {
+      const src = product && typeof product.image === 'string' ? product.image.trim() : '';
+      if (src && src !== 'null' && src !== 'undefined') {
+        return src;
+      }
+      return buildFallbackImage(product?.name || 'Medicine');
+    }
 
     // Initialize
     document.addEventListener('DOMContentLoaded', () => {
@@ -209,6 +255,15 @@
         loadProducts();
         loadAutocomplete();
       });
+
+      const mobileSearch = document.getElementById('searchInputMobile');
+      if (mobileSearch) {
+        mobileSearch.addEventListener('input', (e) => {
+          document.getElementById('searchInput').value = e.target.value;
+          currentPage = 1;
+          loadProducts();
+        });
+      }
 
       // Filters
       document.querySelectorAll('.type-filter').forEach(checkbox => {
@@ -266,6 +321,7 @@
       try {
         document.getElementById('loadingState').style.display = 'block';
         document.getElementById('productsGrid').innerHTML = '';
+        showSkeletonLoaders('productsSkeleton', 8);
 
         let url = `${API_BASE_URL}/products/`;
         const params = new URLSearchParams();
@@ -304,23 +360,27 @@
 
         const response = await fetch(url);
         const result = await response.json();
+        const items = Array.isArray(result) ? result : (result.results || []);
 
         document.getElementById('loadingState').style.display = 'none';
 
-        if (result.results && result.results.length > 0) {
-          displayProducts(result.results);
+        if (items.length > 0) {
+          displayProducts(items);
           document.getElementById('noResults').style.display = 'none';
           
           // Update product count
-          document.getElementById('productCount').textContent = result.count || result.results.length;
+          document.getElementById('productCount').textContent = result.count || items.length;
 
           // Show pagination if needed
-          if (result.next || result.previous) {
+          if (!Array.isArray(result) && (result.next || result.previous)) {
             setupPagination(result);
+          } else {
+            document.getElementById('paginationButtons').innerHTML = '';
           }
         } else {
           document.getElementById('noResults').style.display = 'block';
           document.getElementById('productCount').textContent = '0';
+          document.getElementById('paginationButtons').innerHTML = '';
         }
       } catch (error) {
         reportClientError('Error loading products', error, 'Unable to load products.');
@@ -329,11 +389,33 @@
     }
 
     function displayProducts(products) {
-      const html = products.map(product => `
+      const isAuthed = !!localStorage.getItem(TOKEN_KEY);
+      const seenNames = new Set();
+      const normalized = (Array.isArray(products) ? products : [])
+        .filter((p) => p && p.id)
+        .filter((p) => {
+          const key = String(p.name || '').trim().toLowerCase();
+          if (!key) return true;
+          if (seenNames.has(key)) return false;
+          seenNames.add(key);
+          return true;
+        });
+
+      const html = normalized.map(product => `
         <div class="product-card">
-          ${product.discount_percentage > 0 ? `<span class="badge-discount">-${product.discount_percentage}%</span>` : ''}
-          <div class="product-image">
-            <i class="fas fa-pills"></i>
+          ${product.discount_percentage > 0 ? `<span class="badge-discount ribbon">-${product.discount_percentage}%</span>` : ''}
+          ${product.prescription_required ? '<span class="badge-rx">Rx</span>' : '<span class="badge-otc">OTC</span>'}
+          <div class="product-image-wrap">
+            <div class="product-image">
+              <img src="${getProductImageSrc(product)}" alt="${product.name}">
+            </div>
+            ${isAuthed ? `
+              <div class="product-card-overlay">
+                <button class="quick-add-btn" onclick="quickAddToCart(${product.id}, event)" aria-label="Quick add ${product.name} to cart" title="Quick Add">
+                  <i class="fas fa-cart-plus"></i>
+                </button>
+              </div>
+            ` : ''}
           </div>
           <div class="product-info">
             <h3 class="product-name">${product.name}</h3>
@@ -345,9 +427,6 @@
               ` : `
                 <span class="price-current">₹${product.price}</span>
               `}
-            </div>
-            <div class="product-tags">
-              ${product.prescription_required ? '<span class="tag rx">Rx</span>' : '<span class="tag otc">OTC</span>'}
             </div>
             <button class="btn btn-sm btn-primary" onclick="viewProduct(${product.id})">
               <i class="fas fa-eye"></i> View
@@ -393,7 +472,24 @@
       loadProducts();
     }
 
+    function rememberViewedProduct(productId) {
+      const id = Number(productId);
+      if (!Number.isInteger(id) || id <= 0) return;
+
+      let history = [];
+      try {
+        const raw = JSON.parse(localStorage.getItem('recently_viewed_products') || '[]');
+        history = Array.isArray(raw) ? raw.map((v) => Number(v)).filter((v) => Number.isInteger(v) && v > 0) : [];
+      } catch (e) {
+        history = [];
+      }
+
+      const updated = [id, ...history.filter((v) => v !== id)].slice(0, 8);
+      localStorage.setItem('recently_viewed_products', JSON.stringify(updated));
+    }
+
     function viewProduct(productId) {
+      rememberViewedProduct(productId);
       window.location.href = `product-detail.html?id=${productId}`;
     }
 
@@ -428,5 +524,6 @@
   </script>
 </body>
 </html>
+
 
 

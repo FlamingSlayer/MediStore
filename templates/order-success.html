@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -16,7 +16,7 @@
     <div class="container">
       <div class="header-inner">
         <a href="index.html" class="logo">
-          <div class="logo-icon"><i class="fas fa-pills"></i></div>
+          <div class="logo-icon"><i class="fas fa-capsules"></i></div>
           <span class="logo-text">MediStore</span>
         </a>
       </div>
@@ -124,7 +124,7 @@
           <strong>Order Date:</strong> ${formatDate(order.placed_at)}
         </p>
         <p style="margin-bottom: 15px;">
-          <strong>Total Amount:</strong> <span style="font-size: 1.5rem; color: var(--primary); font-weight: 700;">₹${order.total_amount}</span>
+          <strong>Total Amount:</strong> <span style="font-size: 1.5rem; color: var(--primary); font-weight: 700;">\u20B9${order.total_amount}</span>
         </p>
         <p style="margin-bottom: 15px;">
           <strong>Status:</strong> <span class="status-badge status-${order.status}" style="display: inline-block;">${order.status.toUpperCase()}</span>
@@ -138,3 +138,4 @@
   </script>
 </body>
 </html>
+

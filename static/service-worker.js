@@ -1,4 +1,4 @@
-const CACHE_NAME = 'medistore-v2';
+const CACHE_NAME = 'medistore-v3';
 const OFFLINE_URL = '/static/offline.html';
 
 const ASSETS_TO_CACHE = [
@@ -30,6 +30,20 @@ self.addEventListener('fetch', (event) => {
   if (event.request.mode === 'navigate') {
     event.respondWith(
       fetch(event.request).catch(() => caches.match(OFFLINE_URL))
+    );
+    return;
+  }
+
+  // Keep JS/CSS fresh to avoid stale handlers on interactive pages like admin.
+  if (event.request.url.includes('/static/js/') || event.request.url.includes('/static/css/')) {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          return response;
+        })
+        .catch(() => caches.match(event.request))
     );
     return;
   }

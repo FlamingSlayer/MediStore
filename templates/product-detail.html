@@ -17,11 +17,11 @@
     <div class="container">
       <div class="header-inner">
         <a href="index.html" class="logo">
-          <div class="logo-icon"><i class="fas fa-pills"></i></div>
+          <div class="logo-icon"><i class="fas fa-capsules"></i></div>
           <span class="logo-text">MediStore</span>
         </a>
         
-        <button class="mobile-menu-btn" id="mobileMenuBtn">
+        <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Open navigation menu" title="Menu">
           <i class="fas fa-bars"></i>
         </button>
         
@@ -33,7 +33,7 @@
         </nav>
         
         <div class="header-controls">
-          <button class="theme-toggle" id="themeToggle" title="Toggle dark mode">
+          <button class="theme-toggle" id="themeToggle" title="Toggle dark mode" aria-label="Toggle dark mode">
             <i class="fas fa-moon"></i>
           </button>
           
@@ -46,7 +46,7 @@
             <span class="user-greeting">Hi, <span id="user-name">User</span></span>
             <a href="cart.html" class="btn btn-outline"><i class="fas fa-shopping-cart"></i> Cart</a>
             <a href="dashboard.html" class="btn btn-primary">Dashboard</a>
-            <button id="logoutBtn" class="btn-logout" title="Logout">
+            <button id="logoutBtn" class="btn-logout" title="Logout" aria-label="Logout">
               <i class="fas fa-sign-out-alt"></i>
             </button>
           </div>
@@ -104,11 +104,34 @@
     </div>
   </footer>
 
+  <nav class="bottom-nav" id="bottomNav" aria-label="Mobile quick navigation">
+    <div class="bottom-nav-content">
+      <a href="index.html" class="bottom-nav-item" aria-label="Home"><i class="fas fa-house"></i><span>Home</span></a>
+      <a href="products.html" class="bottom-nav-item" aria-label="Shop"><i class="fas fa-store"></i><span>Shop</span></a>
+      <a href="cart.html" class="bottom-nav-item" aria-label="Cart"><i class="fas fa-cart-shopping"></i><span>Cart</span></a>
+      <a href="dashboard.html" class="bottom-nav-item" aria-label="Dashboard"><i class="fas fa-chart-line"></i><span>Dashboard</span></a>
+    </div>
+  </nav>
+
   <script src="/static/js/config.js"></script>
   <script src="/static/js/init.js"></script>
   <script src="/static/js/app.js"></script>
   <script>
     let product = null;
+
+    function buildFallbackImage(label = 'Medicine') {
+      const safe = String(label || 'Medicine').slice(0, 18);
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600"><defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#1f2f57"/><stop offset="100%" stop-color="#14213f"/></linearGradient><linearGradient id="pill" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#22d3ee"/><stop offset="100%" stop-color="#60a5fa"/></linearGradient></defs><rect width="600" height="600" fill="url(#bg)"/><rect x="190" y="250" width="220" height="100" rx="32" fill="url(#pill)"/><rect x="280" y="180" width="40" height="240" rx="14" fill="#8bf5ff" fill-opacity="0.9"/><text x="300" y="500" font-size="38" text-anchor="middle" fill="#d9e7ff" font-family="Segoe UI, Arial, sans-serif">${safe}</text></svg>`;
+      return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+    }
+
+    function getProductImageSrc(productObj) {
+      const src = productObj && typeof productObj.image === 'string' ? productObj.image.trim() : '';
+      if (src && src !== 'null' && src !== 'undefined') {
+        return src;
+      }
+      return buildFallbackImage(productObj?.name || 'Medicine');
+    }
 
     document.addEventListener('DOMContentLoaded', () => {      setupThemeToggle();
       setupMobileMenu();      checkAuth();
@@ -134,6 +157,9 @@
         if (!response.ok) throw new Error('Product not found');
         
         product = await response.json();
+        const history = JSON.parse(localStorage.getItem('recently_viewed_products') || '[]');
+        const updated = [product.id, ...history.filter(id => id !== product.id)].slice(0, 8);
+        localStorage.setItem('recently_viewed_products', JSON.stringify(updated));
         displayProductDetail();
       } catch (error) {
         reportClientError('Error loading product', error, 'Unable to load product details.');
@@ -153,8 +179,20 @@
       const html = `
         <div class="product-detail-grid">
           <div class="product-detail-image">
-            <div class="image-placeholder">
-              <i class="fas fa-pills"></i>
+            <div class="product-carousel">
+              <div class="carousel-track">
+                <div class="carousel-slide active">
+                  <img src="${getProductImageSrc(product)}" alt="${product.name}" style="width:100%;height:100%;object-fit:cover;border-radius:var(--radius-xl);">
+                </div>
+                <div class="carousel-slide">
+                  <img src="${getProductImageSrc(product)}" alt="${product.name} alternate view" style="width:100%;height:100%;object-fit:cover;border-radius:var(--radius-xl);filter:saturate(1.1)">
+                </div>
+                <div class="carousel-slide">
+                  <img src="${getProductImageSrc(product)}" alt="${product.name} packaging" style="width:100%;height:100%;object-fit:cover;border-radius:var(--radius-xl);filter:contrast(1.05)">
+                </div>
+              </div>
+              <button type="button" class="carousel-btn prev" onclick="changeCarouselSlide(-1)" aria-label="Previous image"><i class="fas fa-chevron-left"></i></button>
+              <button type="button" class="carousel-btn next" onclick="changeCarouselSlide(1)" aria-label="Next image"><i class="fas fa-chevron-right"></i></button>
             </div>
           </div>
 
@@ -168,6 +206,8 @@
             <div class="product-meta">
               <p><strong>Category:</strong> ${product.category_name}</p>
               <p><strong>Type:</strong> ${product.prescription_required ? '<span class="tag rx">Prescription Required (Rx)</span>' : '<span class="tag otc">Over the Counter (OTC)</span>'}</p>
+              <p><strong>Stock:</strong> ${product.stock > 10 ? 'In stock' : `Only ${product.stock} left`}</p>
+              <div class="stock-bar"><div class="stock-progress" style="width:${Math.max(8, Math.min(100, (product.stock || 0) * 5))}%"></div></div>
             </div>
 
             <div class="product-pricing-detail">
@@ -224,6 +264,9 @@
                 <button onclick="addToCart()" id="addToCartBtn" class="btn btn-primary btn-lg">
                   <i class="fas fa-shopping-cart"></i> Add to Cart
                 </button>
+                <button onclick="copyProductLink()" class="btn btn-outline btn-lg" aria-label="Share product link">
+                  <i class="fas fa-share-nodes"></i> Share
+                </button>
                 <button onclick="goToCart()" class="btn btn-outline btn-lg">
                   <i class="fas fa-arrow-right"></i> Go to Cart
                 </button>
@@ -246,6 +289,7 @@
 
         <section class="related-products" style="margin-top: 20px;">
           <h2>Reviews</h2>
+          <div id="ratingSummary" class="summary-card" style="margin-bottom: 12px;"></div>
           <div id="reviewFormWrap" style="margin-bottom: 16px;"></div>
           <div id="reviewsList"></div>
         </section>
@@ -274,11 +318,11 @@
       }
 
       wrap.innerHTML = `
-        <div class="form-group">
+        <div class="form-group no-floating">
           <label for="ratingInput">Rating (1-5)</label>
           <input type="number" id="ratingInput" min="1" max="5" value="5">
         </div>
-        <div class="form-group">
+        <div class="form-group no-floating">
           <label for="commentInput">Comment</label>
           <textarea id="commentInput" rows="3" placeholder="Share your feedback"></textarea>
         </div>
@@ -292,6 +336,12 @@
       const reviews = result.results || result || [];
       const currentUser = JSON.parse(localStorage.getItem('user') || 'null');
 
+      const avg = reviews.length ? (reviews.reduce((sum, r) => sum + Number(r.rating || 0), 0) / reviews.length) : 0;
+      document.getElementById('ratingSummary').innerHTML = `
+        <p style="margin:0;"><strong>${avg.toFixed(1)}</strong> / 5 (${reviews.length} review${reviews.length === 1 ? '' : 's'})</p>
+        <p style="margin:6px 0 0;">${'★'.repeat(Math.round(avg))}${'☆'.repeat(5 - Math.round(avg))}</p>
+      `;
+
       if (!reviews.length) {
         document.getElementById('reviewsList').innerHTML = '<p>No reviews yet.</p>';
         return;
@@ -299,12 +349,30 @@
 
       document.getElementById('reviewsList').innerHTML = reviews.map(r => `
         <div class="summary-card" style="margin-bottom: 10px;">
-          <p><strong>${r.user.username}</strong> - ${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</p>
+          <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
+            <span class="review-avatar">${getInitials(r.user.first_name || r.user.username || 'U', r.user.last_name || 'S')}</span>
+            <p style="margin:0;"><strong>${r.user.username}</strong> - ${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</p>
+          </div>
           <p>${r.comment}</p>
           <small>${new Date(r.created_at).toLocaleString()}</small>
           ${(currentUser && currentUser.id === r.user.id) ? `<div><button class="btn btn-outline" onclick="deleteReview(${r.id})">Delete</button></div>` : ''}
         </div>
       `).join('');
+    }
+
+    let carouselIndex = 0;
+    function changeCarouselSlide(direction) {
+      const slides = document.querySelectorAll('.carousel-slide');
+      if (!slides.length) return;
+      slides[carouselIndex].classList.remove('active');
+      carouselIndex = (carouselIndex + direction + slides.length) % slides.length;
+      slides[carouselIndex].classList.add('active');
+    }
+
+    function copyProductLink() {
+      navigator.clipboard.writeText(window.location.href)
+        .then(() => showToast('Product link copied', 'success'))
+        .catch(() => showToast('Unable to copy link', 'error'));
     }
 
     async function submitReview() {
@@ -358,7 +426,7 @@
             <div class="product-card">
               ${p.discount_percentage > 0 ? `<span class="badge-discount">-${p.discount_percentage}%</span>` : ''}
               <div class="product-image">
-                <i class="fas fa-pills"></i>
+                <img src="${getProductImageSrc(p)}" alt="${p.name}" style="width:100%;height:100%;object-fit:cover;display:block;">
               </div>
               <div class="product-info">
                 <h3 class="product-name">${p.name}</h3>
@@ -448,9 +516,28 @@
       window.location.href = 'cart.html';
     }
 
+    function rememberViewedProduct(productId) {
+      const id = Number(productId);
+      if (!Number.isInteger(id) || id <= 0) return;
+
+      let history = [];
+      try {
+        const raw = JSON.parse(localStorage.getItem('recently_viewed_products') || '[]');
+        history = Array.isArray(raw) ? raw.map((v) => Number(v)).filter((v) => Number.isInteger(v) && v > 0) : [];
+      } catch (e) {
+        history = [];
+      }
+
+      const updated = [id, ...history.filter((v) => v !== id)].slice(0, 8);
+      localStorage.setItem('recently_viewed_products', JSON.stringify(updated));
+    }
+
     function viewProduct(productId) {
+      rememberViewedProduct(productId);
       window.location.href = `product-detail.html?id=${productId}`;
     }
   </script>
 </body>
 </html>
+
+

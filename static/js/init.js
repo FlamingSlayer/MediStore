@@ -31,7 +31,10 @@
     
     // 1. Verify API Base URL
     if (typeof API_BASE_URL === 'undefined') {
-      window.API_BASE_URL = 'http://localhost:8000/api';
+      window.API_BASE_URL =
+        window.location.protocol === 'http:' || window.location.protocol === 'https:'
+          ? `${window.location.origin}/api`
+          : 'http://localhost:8000/api';
       devWarn('API_BASE_URL not defined, using default:', window.API_BASE_URL);
     } else {
       devLog('API_BASE_URL:', window.API_BASE_URL);
@@ -144,12 +147,8 @@
   }
 
   function setupServiceWorker() {
-    if (!('serviceWorker' in navigator)) {
-      return;
-    }
-    navigator.serviceWorker.register('/static/service-worker.js').catch((error) => {
-      devWarn('Service worker registration failed', error);
-    });
+    // Temporarily disabled to prevent stale cached JS/HTML from breaking dynamic pages.
+    return;
   }
 
   /**

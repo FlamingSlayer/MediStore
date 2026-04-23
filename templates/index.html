@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -18,11 +18,11 @@
     <div class="container">
       <div class="header-inner">
         <a href="index.html" class="logo">
-          <div class="logo-icon"><i class="fas fa-pills"></i></div>
+          <div class="logo-icon"><i class="fas fa-capsules"></i></div>
           <span class="logo-text">MediStore</span>
         </a>
         
-        <button class="mobile-menu-btn" id="mobileMenuBtn">
+        <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Open navigation menu" title="Menu">
           <i class="fas fa-bars"></i>
         </button>
         
@@ -34,7 +34,7 @@
         </nav>
         
         <div class="header-controls">
-          <button class="theme-toggle" id="themeToggle" title="Toggle dark mode">
+          <button class="theme-toggle" id="themeToggle" title="Toggle dark mode" aria-label="Toggle dark mode">
             <i class="fas fa-moon"></i>
           </button>
           
@@ -46,7 +46,7 @@
           <div id="user-nav" style="display: none;">
             <span class="user-greeting">Hi, <span id="user-name">User</span></span>
             <a href="dashboard.html" class="btn btn-primary">Dashboard</a>
-            <button id="logoutBtn" class="btn-logout" title="Logout">
+            <button id="logoutBtn" class="btn-logout" title="Logout" aria-label="Logout">
               <i class="fas fa-sign-out-alt"></i>
             </button>
           </div>
@@ -73,7 +73,7 @@
           </div>
         </div>
         <div class="hero-image">
-          <i class="fas fa-pills"></i>
+          <i class="fas fa-capsules"></i>
         </div>
       </div>
     </section>
@@ -81,10 +81,17 @@
     <!-- Featured Products -->
     <section class="featured-section">
       <div class="container">
-        <h2>Special Offers</h2>
+        <h2>Featured Products</h2>
         <div class="products-grid" id="featuredProducts">
           <!-- Loaded by JavaScript -->
         </div>
+      </div>
+    </section>
+
+    <section class="featured-section">
+      <div class="container">
+        <h2>Recently Viewed</h2>
+        <div class="products-grid" id="recentlyViewedProducts"></div>
       </div>
     </section>
 
@@ -138,67 +145,106 @@
       </div>
     </section>
 
-    <!-- Contact Section -->
-    <section class="section contact-section" id="contact" style="padding: 4rem 0; background-color: var(--bg-gray);">
+    <section class="features-section">
       <div class="container">
-        <div style="text-align: center; margin-bottom: 3rem;">
-          <h2 style="font-size: 2rem;">Get In Touch</h2>
-          <p style="color: var(--text-light); max-width: 600px; margin: 0 auto;">Have questions about our services or need support? Our team is here to help you 24/7.</p>
+        <h2>What Customers Say</h2>
+        <div class="testimonials-grid">
+          <article class="summary-card">
+            <p>"Delivery was super quick and the medicines were packed perfectly."</p>
+            <p><strong>Priya S.</strong></p>
+          </article>
+          <article class="summary-card">
+            <p>"Prescription upload flow is easy and support team is very helpful."</p>
+            <p><strong>Rohit M.</strong></p>
+          </article>
+          <article class="summary-card">
+            <p>"I track all family orders from dashboard. Very convenient."</p>
+            <p><strong>Neha P.</strong></p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="categories-section">
+      <div class="container">
+        <h2>Stay Updated</h2>
+        <form class="summary-card" onsubmit="event.preventDefault(); showToast('Thanks for subscribing!', 'success');">
+          <div class="form-row">
+            <div class="form-group no-floating">
+              <label for="newsletterName">Name</label>
+              <input id="newsletterName" type="text" placeholder="Your name" required>
+            </div>
+            <div class="form-group no-floating">
+              <label for="newsletterEmail">Email</label>
+              <input id="newsletterEmail" type="email" placeholder="you@example.com" required>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary">Subscribe</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="section contact-section fx-contact" id="contact">
+      <div class="container">
+        <div class="fx-contact-head">
+          <h2>Get In Touch</h2>
+          <p>Have questions about our services or need support? Our team is here to help you 24/7.</p>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: start;">
+        <div class="fx-contact-grid">
           <!-- Contact Info -->
-          <div>
-            <div style="display: flex; gap: 1rem; margin-bottom: 2rem; background: var(--bg-light); padding: 1.5rem; border-radius: var(--radius-lg); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
-              <div style="color: var(--primary); font-size: 1.5rem;"><i class="fas fa-map-marker-alt"></i></div>
+          <div class="fx-contact-stack">
+            <div class="fx-contact-card">
+              <div class="fx-contact-icon"><i class="fas fa-map-marker-alt"></i></div>
               <div>
-                <h3 style="margin-bottom: 0.5rem; font-size: 1.25rem;">Visit Us</h3>
-                <p style="color: var(--text-light); margin: 0;">Bhagwa Chowk<br>Kondhwa BK, Pune 411048</p>
+                <h3>Visit Us</h3>
+                <p>Bhagwa Chowk<br>Kondhwa BK, Pune 411048</p>
               </div>
             </div>
 
-            <div style="display: flex; gap: 1rem; margin-bottom: 2rem; background: var(--bg-light); padding: 1.5rem; border-radius: var(--radius-lg); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
-              <div style="color: var(--primary); font-size: 1.5rem;"><i class="fas fa-phone-alt"></i></div>
+            <div class="fx-contact-card">
+              <div class="fx-contact-icon"><i class="fas fa-phone-alt"></i></div>
               <div>
-                <h3 style="margin-bottom: 0.5rem; font-size: 1.25rem;">Call Us</h3>
-                <p style="color: var(--text-light); margin: 0;">Support: +91 9373636822<br>Emergency: 911</p>
+                <h3>Call Us</h3>
+                <p>Support: +91 9373636822<br>Emergency: 911</p>
               </div>
             </div>
 
-            <div style="display: flex; gap: 1rem; background: var(--bg-light); padding: 1.5rem; border-radius: var(--radius-lg); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
-              <div style="color: var(--primary); font-size: 1.5rem;"><i class="fas fa-envelope"></i></div>
+            <div class="fx-contact-card">
+              <div class="fx-contact-icon"><i class="fas fa-envelope"></i></div>
               <div>
-                <h3 style="margin-bottom: 0.5rem; font-size: 1.25rem;">Email Us</h3>
-                <p style="color: var(--text-light); margin: 0;">support@medistore.com<br>info@medistore.com</p>
+                <h3>Email Us</h3>
+                <p>support@medistore.com<br>info@medistore.com</p>
               </div>
             </div>
           </div>
 
           <!-- Contact Form -->
-          <div style="background: var(--bg-light); padding: 2rem; border-radius: var(--radius-lg); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);">
+          <div class="fx-contact-form">
             <form onsubmit="event.preventDefault(); alert('Message sent successfully!');">
-              <div style="margin-bottom: 1.5rem;">
-                <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Full Name</label>
-                <input type="text" placeholder="Omkar" required style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--bg-light); color: var(--text-dark);">
+              <div class="fx-field">
+                <label>Full Name</label>
+                <input type="text" placeholder="Omkar" required>
               </div>
-              <div style="margin-bottom: 1.5rem;">
-                <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Email Address</label>
-                <input type="email" placeholder="omkar@example.com" required style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--bg-light); color: var(--text-dark);">
+              <div class="fx-field">
+                <label>Email Address</label>
+                <input type="email" placeholder="omkar@example.com" required>
               </div>
-              <div style="margin-bottom: 1.5rem;">
-                <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Subject</label>
-                <select required style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--bg-light); color: var(--text-dark);">
+              <div class="fx-field">
+                <label>Subject</label>
+                <select required>
                   <option value="">Select a topic</option>
                   <option value="order">Order Issue</option>
                   <option value="prescription">Prescription Support</option>
                   <option value="general">General Inquiry</option>
                 </select>
               </div>
-              <div style="margin-bottom: 1.5rem;">
-                <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Message</label>
-                <textarea rows="4" placeholder="How can we help you?" required style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--bg-light); color: var(--text-dark); resize: vertical;"></textarea>
+              <div class="fx-field">
+                <label>Message</label>
+                <textarea rows="4" placeholder="How can we help you?" required></textarea>
               </div>
-              <button type="submit" class="btn btn-primary" style="width: 100%;">
+              <button type="submit" class="btn btn-primary fx-send">
                 <i class="fas fa-paper-plane"></i> Send Message
               </button>
             </form>
@@ -215,7 +261,7 @@
       <div class="footer-content">
         <div class="footer-col">
           <div class="logo" style="margin-bottom: 1.5rem; text-decoration: none;">
-            <div class="logo-icon"><i class="fas fa-pills"></i></div>
+            <div class="logo-icon"><i class="fas fa-capsules"></i></div>
             <span class="logo-text" style="color: white;">MediStore</span>
           </div>
           <p style="color: rgba(255,255,255,0.8); line-height: 1.8; margin-bottom: 1.5rem;">Your trusted online pharmacy for quality medicines and healthcare products. Available 24/7.</p>
@@ -262,38 +308,92 @@
     </div>
   </footer>
 
+  <nav class="bottom-nav" id="bottomNav" aria-label="Mobile quick navigation">
+    <div class="bottom-nav-content">
+      <a href="index.html" class="bottom-nav-item" aria-label="Home"><i class="fas fa-house"></i><span>Home</span></a>
+      <a href="products.html" class="bottom-nav-item" aria-label="Shop"><i class="fas fa-store"></i><span>Shop</span></a>
+      <a href="cart.html" class="bottom-nav-item" aria-label="Cart"><i class="fas fa-cart-shopping"></i><span>Cart</span></a>
+      <a href="dashboard.html" class="bottom-nav-item" aria-label="Dashboard"><i class="fas fa-chart-line"></i><span>Dashboard</span></a>
+    </div>
+  </nav>
+
   <!-- Scripts -->
   <script src="/static/js/config.js"></script>
   <script src="/static/js/init.js"></script>
   <script src="/static/js/app.js"></script>
   <script>
+    const INDEX_API_BASE = (typeof API_BASE_URL !== 'undefined' && API_BASE_URL) ? API_BASE_URL : '/api';
+
+    function buildFallbackImage(label = 'Medicine') {
+      const safe = String(label || 'Medicine').slice(0, 18);
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600"><defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#1f2f57"/><stop offset="100%" stop-color="#14213f"/></linearGradient><linearGradient id="pill" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#22d3ee"/><stop offset="100%" stop-color="#60a5fa"/></linearGradient></defs><rect width="600" height="600" fill="url(#bg)"/><rect x="190" y="250" width="220" height="100" rx="32" fill="url(#pill)"/><rect x="280" y="180" width="40" height="240" rx="14" fill="#8bf5ff" fill-opacity="0.9"/><text x="300" y="500" font-size="38" text-anchor="middle" fill="#d9e7ff" font-family="Segoe UI, Arial, sans-serif">${safe}</text></svg>`;
+      return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+    }
+
+    function getProductImageSrc(product) {
+      const src = product && typeof product.image === 'string' ? product.image.trim() : '';
+      if (src && src !== 'null' && src !== 'undefined') {
+        return src;
+      }
+      return buildFallbackImage(product?.name || 'Medicine');
+    }
+
     // Load featured products and categories on page load
     document.addEventListener('DOMContentLoaded', async () => {
-      setupThemeToggle();
-      setupMobileMenu();
-      checkAuth();
-      await loadFeaturedProducts();
-      await loadCategories();
+      try {
+        if (typeof setupThemeToggle === 'function') setupThemeToggle();
+        if (typeof setupMobileMenu === 'function') setupMobileMenu();
+        if (typeof checkAuth === 'function') checkAuth();
+      } catch (e) {
+        console.warn('Header init failed:', e);
+      }
+
+      // Keep data sections resilient even if other JS parts fail.
+      try { await loadFeaturedProducts(); } catch (e) { console.warn('Featured load failed:', e); }
+      try { await loadCategories(); } catch (e) { console.warn('Categories load failed:', e); }
+      try { await loadRecentlyViewedProducts(); } catch (e) { console.warn('Recently viewed load failed:', e); }
     });
 
     async function loadFeaturedProducts() {
       try {
-        const response = await fetch(`${API_BASE_URL}/products/featured/`);
-        const products = await response.json();
-        displayProducts(products, 'featuredProducts');
+        const featuredRes = await fetch(`${INDEX_API_BASE}/products/featured/`);
+        let featuredProducts = [];
+
+        if (featuredRes.ok) {
+          const payload = await featuredRes.json();
+          featuredProducts = Array.isArray(payload) ? payload : (payload.results || []);
+        }
+
+        // Fallback: if no discounted/featured products, show regular products.
+        if (!featuredProducts.length) {
+          const productsRes = await fetch(`${INDEX_API_BASE}/products/?page=1`);
+          if (!productsRes.ok) {
+            throw new Error('Unable to load products');
+          }
+          const productsPayload = await productsRes.json();
+          featuredProducts = (productsPayload.results || productsPayload || []).slice(0, 8);
+        }
+
+        if (!featuredProducts.length) {
+          document.getElementById('featuredProducts').innerHTML = '<p>No products available right now.</p>';
+          return;
+        }
+
+        displayProducts(featuredProducts, 'featuredProducts');
       } catch (error) {
         reportClientError('Error loading featured products', error, 'Unable to load featured products.');
+        document.getElementById('featuredProducts').innerHTML = '<p>Unable to load products right now.</p>';
       }
     }
 
     async function loadCategories() {
       try {
-        const response = await fetch(`${API_BASE_URL}/categories/`);
+        const response = await fetch(`${INDEX_API_BASE}/categories/`);
         const results = await response.json();
         const categories = results.results || results;
         const html = categories.map(cat => `
           <a href="products.html?category=${cat.name}" class="category-card">
-            <i class="fas fa-${cat.icon || 'pills'}"></i>
+            <i class="fas fa-${cat.icon || 'capsules'}"></i>
             <h3>${cat.name}</h3>
           </a>
         `).join('');
@@ -304,11 +404,23 @@
     }
 
     function displayProducts(products, containerId) {
-      const html = products.map(product => `
+      const seenNames = new Set();
+      const normalized = (Array.isArray(products) ? products : [])
+        .filter((p) => p && p.id)
+        .filter((p) => {
+          const key = String(p.name || '').trim().toLowerCase();
+          if (!key) return true;
+          if (seenNames.has(key)) return false;
+          seenNames.add(key);
+          return true;
+        })
+        .slice(0, 8);
+
+      const html = normalized.map(product => `
         <div class="product-card">
           ${product.discount_percentage > 0 ? `<span class="badge-discount">-${product.discount_percentage}%</span>` : ''}
           <div class="product-image">
-            <i class="fas fa-pills"></i>
+            <img src="${getProductImageSrc(product)}" alt="${product.name}" style="width:100%;height:100%;object-fit:cover;display:block;">
           </div>
           <div class="product-info">
             <h3 class="product-name">${product.name}</h3>
@@ -330,16 +442,92 @@
           </div>
         </div>
       `).join('');
+
+      if (!html) {
+        document.getElementById(containerId).innerHTML = '<p>No products available right now.</p>';
+        return;
+      }
+
       document.getElementById(containerId).innerHTML = html;
+    }
+
+    async function loadRecentlyViewedProducts() {
+      const target = document.getElementById('recentlyViewedProducts');
+      if (!target) return;
+
+      let ids = [];
+      try {
+        const raw = JSON.parse(localStorage.getItem('recently_viewed_products') || '[]');
+        ids = Array.isArray(raw)
+          ? raw.map((id) => Number(id)).filter((id) => Number.isInteger(id) && id > 0).slice(0, 4)
+          : [];
+      } catch (e) {
+        ids = [];
+      }
+
+      if (!ids.length) {
+        try {
+          const fallbackRes = await fetch(`${INDEX_API_BASE}/products/?page=1`);
+          if (fallbackRes.ok) {
+            const payload = await fallbackRes.json();
+            const fallbackProducts = (payload.results || payload || []).slice(0, 4);
+            if (fallbackProducts.length) {
+              displayProducts(fallbackProducts, 'recentlyViewedProducts');
+              return;
+            }
+          }
+        } catch (e) {
+          // ignore fallback failures
+        }
+
+        target.innerHTML = '<p>No recently viewed products yet. Explore products to personalize this section.</p>';
+        return;
+      }
+
+      const products = [];
+      for (const id of ids) {
+        try {
+          const res = await fetch(`${INDEX_API_BASE}/products/${id}/`);
+          if (res.ok) products.push(await res.json());
+        } catch (e) {
+          // ignore item failures
+        }
+      }
+
+      if (!products.length) {
+        target.innerHTML = '<p>No recently viewed products yet.</p>';
+        return;
+      }
+
+      displayProducts(products, 'recentlyViewedProducts');
     }
 
     function goToShop() {
       window.location.href = 'products.html';
     }
 
+    function rememberViewedProduct(productId) {
+      const id = Number(productId);
+      if (!Number.isInteger(id) || id <= 0) return;
+
+      let history = [];
+      try {
+        const raw = JSON.parse(localStorage.getItem('recently_viewed_products') || '[]');
+        history = Array.isArray(raw) ? raw.map((v) => Number(v)).filter((v) => Number.isInteger(v) && v > 0) : [];
+      } catch (e) {
+        history = [];
+      }
+
+      const updated = [id, ...history.filter((v) => v !== id)].slice(0, 8);
+      localStorage.setItem('recently_viewed_products', JSON.stringify(updated));
+    }
+
     function viewProduct(productId) {
+      rememberViewedProduct(productId);
       window.location.href = `product-detail.html?id=${productId}`;
     }
   </script>
 </body>
 </html>
+
+

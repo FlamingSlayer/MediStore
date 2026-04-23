@@ -5,7 +5,6 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.db.models import F, Q, ExpressionWrapper, DecimalField, Sum, Count
-from django.db.models.functions import TruncMonth
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from rest_framework import permissions, status, viewsets
@@ -25,6 +24,7 @@ from .models import (
     Prescription,
     Product,
     Review,
+    ShippingEvent,
 )
 from .serializers import (
     AddressSerializer,
@@ -69,7 +69,10 @@ class LoginViewSet(viewsets.ViewSet):
             return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
         token, _ = Token.objects.get_or_create(user=user)
-        return Response({'token': token.key, 'user': UserSerializer(user).data})
+        user_data = UserSerializer(user).data
+        user_data['is_staff'] = user.is_staff
+        user_data['is_superuser'] = user.is_superuser
+        return Response({'token': token.key, 'user': user_data})
 
 
 class RegisterViewSet(viewsets.ViewSet):
@@ -111,7 +114,10 @@ class RegisterViewSet(viewsets.ViewSet):
                 fail_silently=True,
             )
 
-        return Response({'token': token.key, 'user': UserSerializer(user).data}, status=status.HTTP_201_CREATED)
+        user_data = UserSerializer(user).data
+        user_data['is_staff'] = user.is_staff
+        user_data['is_superuser'] = user.is_superuser
+        return Response({'token': token.key, 'user': user_data}, status=status.HTTP_201_CREATED)
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
@@ -456,6 +462,9 @@ class OrderViewSet(viewsets.ModelViewSet):
             order.shipped_at = timezone.now()
         if status_new == 'delivered':
             order.delivered_at = timezone.now()
+        if status_new == 'failed_delivery':
+            order.last_delivery_attempt_at = timezone.now()
+            order.delivery_attempts = (order.delivery_attempts or 0) + 1
         order.save()
 
         if order.user.email:
@@ -468,6 +477,97 @@ class OrderViewSet(viewsets.ModelViewSet):
             )
 
         return Response(OrderSerializer(order).data)
+
+    @action(detail=True, methods=['post'], permission_classes=[permissions.IsAdminUser])
+    def shipping_update(self, request, pk=None):
+        order = self.get_object()
+
+        courier_name = request.data.get('courier_name')
+        tracking_id = request.data.get('tracking_id')
+        shipping_notes = request.data.get('shipping_notes')
+        mark_shipped = bool(request.data.get('mark_shipped', False))
+
+        changed = False
+        if courier_name is not None:
+            order.courier_name = str(courier_name).strip() or None
+            changed = True
+        if tracking_id is not None:
+            order.tracking_id = str(tracking_id).strip() or None
+            changed = True
+        if shipping_notes is not None:
+            order.shipping_notes = str(shipping_notes).strip()
+            changed = True
+
+        if mark_shipped and order.status in ['placed', 'confirmed']:
+            order.status = 'shipped'
+            order.shipped_at = timezone.now()
+            changed = True
+            ShippingEvent.objects.create(
+                order=order,
+                event_type='dispatched',
+                note=f"Dispatched via {order.courier_name or 'courier'} ({order.tracking_id or 'tracking pending'})",
+                actor=request.user,
+            )
+
+        if changed:
+            order.save()
+            ShippingEvent.objects.create(
+                order=order,
+                event_type='tracking_updated',
+                note=f"Courier: {order.courier_name or 'N/A'} | Tracking: {order.tracking_id or 'N/A'}",
+                actor=request.user,
+            )
+
+        return Response(OrderSerializer(order).data)
+
+    @action(detail=True, methods=['post'], permission_classes=[permissions.IsAdminUser])
+    def log_delivery_attempt(self, request, pk=None):
+        order = self.get_object()
+        success = bool(request.data.get('success', False))
+        note = str(request.data.get('note', '')).strip()
+
+        order.delivery_attempts = (order.delivery_attempts or 0) + 1
+        order.last_delivery_attempt_at = timezone.now()
+
+        if success:
+            order.status = 'delivered'
+            order.delivered_at = timezone.now()
+            event_type = 'delivered'
+            event_note = note or 'Delivered successfully.'
+        else:
+            order.status = 'failed_delivery'
+            event_type = 'delivery_attempt_failed'
+            event_note = note or 'Delivery attempt failed.'
+
+        order.save()
+        ShippingEvent.objects.create(
+            order=order,
+            event_type=event_type,
+            note=event_note,
+            actor=request.user,
+        )
+
+        return Response(OrderSerializer(order).data)
+
+    @action(detail=False, methods=['get'], permission_classes=[permissions.IsAdminUser])
+    def shipping_manifest(self, request):
+        qs = Order.objects.filter(status__in=['placed', 'confirmed', 'shipped', 'failed_delivery']).select_related('address', 'user').order_by('placed_at')
+        data = [
+            {
+                'id': o.id,
+                'order_number': o.order_number,
+                'status': o.status,
+                'customer': o.address.full_name if o.address_id else o.user.username,
+                'phone': o.address.phone if o.address_id else '',
+                'city': o.address.city if o.address_id else '',
+                'amount': float(o.total_amount),
+                'courier_name': o.courier_name,
+                'tracking_id': o.tracking_id,
+                'placed_at': o.placed_at,
+            }
+            for o in qs
+        ]
+        return Response(data)
 
     @action(detail=True, methods=['post'])
     def request_return(self, request, pk=None):
@@ -686,7 +786,7 @@ class AdminStatsViewSet(viewsets.ViewSet):
         total_users = User.objects.count()
         pending_prescriptions = Prescription.objects.filter(status='pending').count()
         pending_orders = Order.objects.filter(status='placed').count()
-        revenue = Order.objects.filter(status='delivered').aggregate(Sum('total_amount'))['total_amount__sum'] or 0
+        revenue = Order.objects.exclude(status='cancelled').aggregate(Sum('total_amount'))['total_amount__sum'] or 0
         return Response(
             {
                 'total_orders': total_orders,
@@ -700,19 +800,27 @@ class AdminStatsViewSet(viewsets.ViewSet):
     @action(detail=False, methods=['get'])
     def chart(self, request):
         qs = (
-            Order.objects.filter(status__in=['placed', 'confirmed', 'shipped', 'delivered'])
-            .annotate(month=TruncMonth('placed_at'))
-            .values('month')
+            Order.objects.filter(
+                status__in=['placed', 'confirmed', 'shipped', 'delivered'],
+                placed_at__isnull=False,
+            )
+            .values('placed_at__year', 'placed_at__month')
             .annotate(order_count=Count('id'), revenue=Sum('total_amount'))
-            .order_by('month')
+            .order_by('placed_at__year', 'placed_at__month')
         )
 
-        data = [
-            {
-                'month': row['month'].strftime('%Y-%m') if row['month'] else '',
-                'order_count': row['order_count'],
-                'revenue': float(row['revenue'] or 0),
-            }
-            for row in qs
-        ]
+        data = []
+        for row in qs:
+            year = row.get('placed_at__year')
+            month = row.get('placed_at__month')
+            if year is None or month is None:
+                continue
+
+            data.append(
+                {
+                    'month': f"{int(year):04d}-{int(month):02d}",
+                    'order_count': row['order_count'],
+                    'revenue': float(row['revenue'] or 0),
+                }
+            )
         return Response(data)

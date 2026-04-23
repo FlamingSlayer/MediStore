@@ -16,7 +16,7 @@
   <header class="header">
     <div class="container">
       <a href="index.html" class="logo">
-        <div class="logo-icon"><i class="fas fa-pills"></i></div>
+        <div class="logo-icon"><i class="fas fa-capsules"></i></div>
         <span class="logo-text">MediStore</span>
       </a>
     </div>
@@ -30,7 +30,7 @@
       </div>
 
       <form id="loginForm" class="auth-form">
-        <div class="form-group">
+        <div class="form-group no-floating">
           <label for="username">Email or Username</label>
           <input 
             type="text" 
@@ -41,7 +41,7 @@
           >
         </div>
 
-        <div class="form-group">
+        <div class="form-group no-floating">
           <label for="password">Password</label>
           <input 
             type="password" 
@@ -84,7 +84,7 @@
       <div class="footer-content">
         <div class="footer-col">
           <div class="logo" style="margin-bottom: 1.5rem; text-decoration: none;">
-            <div class="logo-icon"><i class="fas fa-pills"></i></div>
+            <div class="logo-icon"><i class="fas fa-capsules"></i></div>
             <span class="logo-text" style="color: white;">MediStore</span>
           </div>
           <p style="color: rgba(255,255,255,0.8); line-height: 1.8; margin-bottom: 1.5rem;">Your trusted online pharmacy for quality medicines and healthcare products. Available 24/7.</p>
@@ -169,12 +169,13 @@
           // Save token
           localStorage.setItem(TOKEN_KEY, data.token);
           localStorage.setItem('user', JSON.stringify(data.user));
+          const isAdmin = !!(data.user && (data.user.is_staff || data.user.is_superuser));
           
           successDiv.textContent = 'Login successful! Redirecting...';
           successDiv.style.display = 'block';
           
           setTimeout(() => {
-            window.location.href = 'dashboard.html';
+            window.location.href = isAdmin ? 'admin.html' : 'dashboard.html';
           }, 1500);
         } else {
           errorDiv.textContent = data.error || 'Invalid email/username or password';
@@ -195,11 +196,18 @@
       setupThemeToggle();
       setupMobileMenu();
       if (localStorage.getItem(TOKEN_KEY)) {
-        window.location.href = 'dashboard.html';
+        try {
+          const user = JSON.parse(localStorage.getItem('user') || '{}');
+          const isAdmin = !!(user.is_staff || user.is_superuser);
+          window.location.href = isAdmin ? 'admin.html' : 'dashboard.html';
+        } catch (e) {
+          window.location.href = 'dashboard.html';
+        }
       }
     });
   </script>
 </body>
 </html>
+
 
 

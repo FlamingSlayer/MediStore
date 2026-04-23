@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -16,7 +16,7 @@
     <div class="container">
       <div class="header-inner">
         <a href="index.html" class="logo">
-          <div class="logo-icon"><i class="fas fa-pills"></i></div>
+          <div class="logo-icon"><i class="fas fa-capsules"></i></div>
           <span class="logo-text">MediStore</span>
         </a>
       </div>
@@ -67,6 +67,15 @@
     </div>
   </footer>
 
+  <nav class="bottom-nav" id="bottomNav" aria-label="Mobile quick navigation">
+    <div class="bottom-nav-content">
+      <a href="index.html" class="bottom-nav-item" aria-label="Home"><i class="fas fa-house"></i><span>Home</span></a>
+      <a href="products.html" class="bottom-nav-item" aria-label="Shop"><i class="fas fa-store"></i><span>Shop</span></a>
+      <a href="cart.html" class="bottom-nav-item" aria-label="Cart"><i class="fas fa-cart-shopping"></i><span>Cart</span></a>
+      <a href="dashboard.html" class="bottom-nav-item" aria-label="Dashboard"><i class="fas fa-chart-line"></i><span>Dashboard</span></a>
+    </div>
+  </nav>
+
   <script src="/static/js/config.js"></script>
   <script src="/static/js/init.js"></script>
   <script src="/static/js/app.js"></script>
@@ -112,16 +121,25 @@
 
     function displayOrderDetail(order) {
       const timeline = [
-        { key: 'placed', label: 'Order Placed' },
-        { key: 'confirmed', label: 'Confirmed' },
-        { key: 'shipped', label: 'Shipped' },
-        { key: 'delivered', label: 'Delivered' }
+        { key: 'placed', label: 'Order Placed', icon: 'fa-receipt' },
+        { key: 'confirmed', label: 'Confirmed', icon: 'fa-circle-check' },
+        { key: 'shipped', label: 'Shipped', icon: 'fa-truck-fast' },
+        { key: 'delivered', label: 'Delivered', icon: 'fa-box-open' }
       ];
       const currentIndex = timeline.findIndex(step => step.key === order.status);
+      const placed = new Date(order.placed_at || order.created_at || Date.now());
+      const etaDays = String(order.shipping_method || '').toLowerCase().includes('express') ? 2 : 4;
+      const etaDate = new Date(placed.getTime() + etaDays * 24 * 60 * 60 * 1000);
 
       const statusHtml = timeline.map((step, idx) => {
         const done = idx <= currentIndex;
-        return `<span style="display:inline-block; margin-right:8px; padding:6px 10px; border-radius:999px; background:${done ? 'var(--primary)' : 'var(--bg-gray)'}; color:${done ? '#fff' : 'var(--text-dark)'};">${step.label}</span>`;
+        const isCurrent = idx === currentIndex;
+        return `
+          <div class="order-step ${done ? 'done' : ''} ${isCurrent ? 'current' : ''}">
+            <div class="order-step-icon"><i class="fas ${step.icon}"></i></div>
+            <div>${step.label}</div>
+          </div>
+        `;
       }).join('');
 
       const itemsHtml = (order.items || []).map(item => `
@@ -130,7 +148,7 @@
             <strong>${item.product ? item.product.name : 'Product'}</strong>
             <p style="margin:4px 0; color:var(--text-light);">Qty: ${item.quantity}</p>
           </div>
-          <div>₹${item.final_price || item.price}</div>
+          <div>\u20B9${item.final_price || item.price}</div>
         </div>
       `).join('') || '<p>No items found.</p>';
 
@@ -144,7 +162,8 @@
 
             <div class="summary-card" style="margin-bottom:16px;">
               <h3 style="margin-top:0;">Status</h3>
-              <div>${statusHtml}</div>
+              <div class="order-timeline">${statusHtml}</div>
+              <p style="margin-top:10px;"><strong>Estimated delivery:</strong> ${etaDate.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
             </div>
 
             <div class="summary-card">
@@ -155,11 +174,11 @@
 
           <aside class="summary-card">
             <h3 style="margin-top:0;">Summary</h3>
-            <p><strong>Subtotal:</strong> ₹${order.subtotal}</p>
-            <p><strong>Tax:</strong> ₹${order.tax}</p>
-            <p><strong>Shipping:</strong> ₹${order.shipping_charges}</p>
-            ${order.coupon_discount ? `<p><strong>Coupon Discount:</strong> -₹${order.coupon_discount}</p>` : ''}
-            <p style="font-size:1.1rem;"><strong>Total:</strong> ₹${order.total_amount}</p>
+            <p><strong>Subtotal:</strong> \u20B9${order.subtotal}</p>
+            <p><strong>Tax:</strong> \u20B9${order.tax}</p>
+            <p><strong>Shipping:</strong> \u20B9${order.shipping_charges}</p>
+            ${order.coupon_discount ? `<p><strong>Coupon Discount:</strong> -\u20B9${order.coupon_discount}</p>` : ''}
+            <p style="font-size:1.1rem;"><strong>Total:</strong> \u20B9${order.total_amount}</p>
 
             <h4>Delivery Address</h4>
             <p style="margin:0;">
@@ -202,3 +221,4 @@
   </script>
 </body>
 </html>
+

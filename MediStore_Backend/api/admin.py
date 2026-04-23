@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Category, Product, Address, Prescription, Cart, CartItem, Order, OrderItem
+from .models import Category, Product, Address, Prescription, Cart, CartItem, Order, OrderItem, ShippingEvent
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
@@ -81,13 +81,19 @@ class OrderItemInline(admin.TabularInline):
     extra = 0
 
 
+class ShippingEventInline(admin.TabularInline):
+    model = ShippingEvent
+    extra = 0
+    readonly_fields = ['event_type', 'note', 'actor', 'created_at']
+
+
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
     list_display = ['order_number', 'user', 'status', 'total_amount', 'placed_at']
     list_filter = ['status', 'payment_method', 'placed_at']
     search_fields = ['order_number', 'user__username', 'user__email']
-    readonly_fields = ['order_number', 'placed_at', 'confirmed_at', 'shipped_at', 'delivered_at']
-    inlines = [OrderItemInline]
+    readonly_fields = ['order_number', 'placed_at', 'confirmed_at', 'shipped_at', 'delivered_at', 'last_delivery_attempt_at']
+    inlines = [OrderItemInline, ShippingEventInline]
     fieldsets = (
         ('Order Information', {
             'fields': ('order_number', 'user', 'status')
@@ -98,6 +104,9 @@ class OrderAdmin(admin.ModelAdmin):
         ('Payment', {
             'fields': ('payment_method', 'subtotal', 'tax', 'shipping_charges', 'total_amount')
         }),
+        ('Shipping', {
+            'fields': ('courier_name', 'tracking_id', 'shipping_notes', 'delivery_attempts', 'last_delivery_attempt_at')
+        }),
         ('Timeline', {
             'fields': ('placed_at', 'confirmed_at', 'shipped_at', 'delivered_at'),
         }),
@@ -106,3 +115,11 @@ class OrderAdmin(admin.ModelAdmin):
             'classes': ('collapse',)
         }),
     )
+
+
+@admin.register(ShippingEvent)
+class ShippingEventAdmin(admin.ModelAdmin):
+    list_display = ['order', 'event_type', 'actor', 'created_at']
+    list_filter = ['event_type', 'created_at']
+    search_fields = ['order__order_number', 'note', 'actor__username']
+    readonly_fields = ['order', 'event_type', 'note', 'actor', 'created_at']

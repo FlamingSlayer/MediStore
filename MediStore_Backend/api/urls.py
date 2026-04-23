@@ -30,4 +30,5 @@ urlpatterns = [
     
     # ============ ADMIN ============
     path('admin-dashboard/', views.admin_dashboard, name='admin_dashboard'),
+    path('admin-test/', views.admin_test, name='admin_test'),
 ]

@@ -8,36 +8,42 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <link rel="stylesheet" href="/static/css/styles.css">
-  <link rel="manifest" href="/static/manifest.json">
+  <link rel="stylesheet" href="../static/css/styles.css">
+  <link rel="manifest" href="../static/manifest.json">
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then((regs) => regs.forEach((r) => r.unregister()));
+    }
+  </script>
 </head>
-<body>
+<body data-server-admin="false" data-server-username="Admin">
+.
   <!-- Header/Navigation -->
   <header class="header" id="main-header">
     <div class="container">
       <div class="header-inner">
-        <a href="index.html" class="logo">
-          <div class="logo-icon"><i class="fas fa-pills"></i></div>
+        <a href="../index.html" class="logo">
+          <div class="logo-icon"><i class="fas fa-capsules"></i></div>
           <span class="logo-text">MediStore</span>
         </a>
         
-        <button class="mobile-menu-btn" id="mobileMenuBtn">
+        <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Open navigation menu" title="Menu">
           <i class="fas fa-bars"></i>
         </button>
         
         <nav class="nav-links" id="navLinks">
-          <a href="index.html" class="nav-link">Home</a>
+          <a href="../index.html" class="nav-link">Home</a>
           <a href="products.html" class="nav-link">Shop</a>
           <a href="#" class="nav-link active">Dashboard</a>
         </nav>
         
         <div class="header-controls">
-          <button class="theme-toggle" id="themeToggle" title="Toggle dark mode">
+          <button class="theme-toggle" id="themeToggle" title="Toggle dark mode" aria-label="Toggle dark mode">
             <i class="fas fa-moon"></i>
           </button>
           
           <span class="user-greeting">Hi, <span id="user-name">User</span></span>
-          <button id="logoutBtn" class="btn-logout" title="Logout">
+          <button id="logoutBtn" class="btn-logout" title="Logout" aria-label="Logout">
             <i class="fas fa-sign-out-alt"></i>
           </button>
         </div>
@@ -49,7 +55,7 @@
     <!-- Breadcrumb -->
     <section class="breadcrumb">
       <div class="container">
-        <a href="index.html">Home</a> / <span>Dashboard</span>
+        <a href="../index.html">Home</a> / <span>Dashboard</span>
       </div>
     </section>
 
@@ -68,6 +74,9 @@
             <button onclick="showTab('orders')" class="nav-item">
               <i class="fas fa-shopping-bag"></i> All Orders
             </button>
+            <button onclick="showTab('shipping')" class="nav-item">
+              <i class="fas fa-truck"></i> Shipping
+            </button>
             <button onclick="showTab('users')" class="nav-item">
               <i class="fas fa-users"></i> Users
             </button>
@@ -80,40 +89,59 @@
           <!-- Overview Tab -->
           <div id="overviewTab" class="tab-content active">
             <h1>Admin Overview</h1>
+            <div class="admin-tools" style="margin-bottom: 14px;">
+              <button id="refreshAdminBtn" class="btn btn-primary"><i class="fas fa-rotate-right"></i> Refresh Data</button>
+              <button class="btn btn-outline" onclick="exportOrdersCsv()"><i class="fas fa-file-csv"></i> Export Orders CSV</button>
+              <span id="adminLastUpdated" style="margin-left:auto; font-size:0.9rem; opacity:0.85;">Last updated: --</span>
+            </div>
             <div class="overview-grid">
               <div class="stat-card">
                 <i class="fas fa-shopping-bag"></i>
                 <div>
-                  <p class="stat-value"><span id='admin-total-orders'></span></p>
+                  <p class="stat-value"><span id='admin-total-orders'>0</span></p>
                   <p>Total Orders</p>
                 </div>
               </div>
               <div class="stat-card">
                 <i class="fas fa-users"></i>
                 <div>
-                  <p class="stat-value"><span id='admin-total-users'></span></p>
+                  <p class="stat-value"><span id='admin-total-users'>0</span></p>
                   <p>Total Users</p>
                 </div>
               </div>
               <div class="stat-card">
                 <i class="fas fa-file-medical"></i>
                 <div>
-                  <p class="stat-value"><span id='admin-pending-prescriptions'></span></p>
+                  <p class="stat-value"><span id='admin-pending-prescriptions'>0</span></p>
                   <p>Pending Prescriptions</p>
                 </div>
               </div>
               <div class="stat-card">
                 <i class="fas fa-clock"></i>
                 <div>
-                  <p class="stat-value"><span id='admin-pending-orders'></span></p>
+                  <p class="stat-value"><span id='admin-pending-orders'>0</span></p>
                   <p>Pending Orders</p>
                 </div>
               </div>
               <div class="stat-card">
                 <i class="fas fa-rupee-sign"></i>
                 <div>
-                  <p class="stat-value">₹<span id='admin-revenue'></span></p>
+                  <p class="stat-value">₹<span id='admin-revenue'>0</span></p>
                   <p>Total Revenue</p>
+                </div>
+              </div>
+              <div class="stat-card">
+                <i class="fas fa-triangle-exclamation"></i>
+                <div>
+                  <p class="stat-value"><span id='admin-low-stock'>0</span></p>
+                  <p>Low Stock (&lt; 10)</p>
+                </div>
+              </div>
+              <div class="stat-card">
+                <i class="fas fa-box-open"></i>
+                <div>
+                  <p class="stat-value"><span id='admin-out-stock'>0</span></p>
+                  <p>Out Of Stock</p>
                 </div>
               </div>
             </div>
@@ -132,7 +160,7 @@
                     </tr>
                   </thead>
                   <tbody id="recentOrdersList">
-                    <!-- Admin orders loaded by JS -->
+                    <tr><td colspan="4">Loading orders...</td></tr>
                   </tbody>
                 </table>
               </div>
@@ -145,6 +173,16 @@
               <h1>Manage Products</h1>
               <button class="btn btn-primary" onclick="showAddProductModal()"><i class="fas fa-plus"></i> Add Product</button>
             </div>
+            <div class="admin-tools" style="margin-bottom: 12px;">
+              <input type="text" id="productSearch" class="search-input" placeholder="Search products by name or brand">
+              <select id="productStockFilter" class="sort-select">
+                <option value="">All Stock</option>
+                <option value="in">In Stock</option>
+                <option value="low">Low Stock (&lt; 10)</option>
+                <option value="out">Out of Stock</option>
+              </select>
+              <button class="btn btn-outline" onclick="exportProductsCsv()"><i class="fas fa-file-csv"></i> Export Products</button>
+            </div>
             <div id="adminProductsList">
               <!-- Loaded by JavaScript -->
             </div>
@@ -153,14 +191,61 @@
           <!-- Orders Tab -->
           <div id="ordersTab" class="tab-content">
             <h1>All Orders</h1>
+            <div class="admin-tools">
+              <input type="text" id="orderSearch" class="search-input" placeholder="Search by order ID, status...">
+              <select id="orderStatusFilter" class="sort-select">
+                <option value="">All Status</option>
+                <option value="placed">Placed</option>
+                <option value="confirmed">Confirmed</option>
+                <option value="shipped">Shipped</option>
+                <option value="delivered">Delivered</option>
+                <option value="failed_delivery">Failed Delivery</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+              <button class="btn btn-primary" onclick="bulkUpdateOrderStatus('shipped')"><i class="fas fa-truck-fast"></i> Mark Selected Shipped</button>
+              <button class="btn btn-outline" onclick="bulkUpdateOrderStatus('delivered')"><i class="fas fa-box"></i> Mark Selected Delivered</button>
+              <button class="btn btn-outline" onclick="toggleSelectAllOrders()"><i class="fas fa-check-double"></i> Select/Unselect All</button>
+              <button class="btn btn-outline" onclick="exportOrdersCsv()"><i class="fas fa-file-csv"></i> Export Orders</button>
+            </div>
             <div id="adminOrdersList">
               <!-- Loaded by JavaScript -->
             </div>
           </div>
 
+          <!-- Shipping Tab -->
+          <div id="shippingTab" class="tab-content">
+            <h1>Shipping Operations</h1>
+            <div class="admin-tools" style="margin-bottom: 10px;">
+              <input type="text" id="shippingSearch" class="search-input" placeholder="Search by order ID or customer">
+              <select id="shippingFilter" class="sort-select">
+                <option value="">All Queue</option>
+                <option value="ready">Ready to Ship</option>
+                <option value="transit">In Transit</option>
+                <option value="overdue">Overdue Dispatch</option>
+              </select>
+              <button class="btn btn-primary" onclick="runShippingAutoFlow()"><i class="fas fa-wand-magic-sparkles"></i> Auto Process Queue</button>
+              <button class="btn btn-outline" onclick="printShippingManifest()"><i class="fas fa-print"></i> Print Manifest</button>
+            </div>
+            <div class="overview-grid" style="margin-bottom: 16px;">
+              <div class="stat-card"><i class="fas fa-clock"></i><div><p class="stat-value" id="ship-ready-count">0</p><p>Ready to Ship</p></div></div>
+              <div class="stat-card"><i class="fas fa-truck-fast"></i><div><p class="stat-value" id="ship-transit-count">0</p><p>In Transit</p></div></div>
+              <div class="stat-card"><i class="fas fa-triangle-exclamation"></i><div><p class="stat-value" id="ship-overdue-count">0</p><p>Overdue Dispatch</p></div></div>
+            </div>
+            <div id="shippingQueueList"></div>
+          </div>
+
           <!-- Users Tab -->
           <div id="usersTab" class="tab-content">
             <h1>Manage Users</h1>
+            <div class="admin-tools">
+              <input type="text" id="userSearch" class="search-input" placeholder="Search users by username or email">
+              <select id="userRoleFilter" class="sort-select">
+                <option value="">All Roles</option>
+                <option value="admin">Admin</option>
+                <option value="customer">Customer</option>
+              </select>
+              <button class="btn btn-outline" onclick="exportUsersCsv()"><i class="fas fa-file-csv"></i> Export Users</button>
+            </div>
             <div id="adminUsersList">
               <!-- Loaded by JavaScript -->
             </div>
@@ -189,7 +274,7 @@
         <div class="footer-col">
           <h4>Quick Links</h4>
           <ul>
-            <li><a href="index.html">Home</a></li>
+            <li><a href="../index.html">Home</a></li>
             <li><a href="products.html">Products</a></li>
             <li><a href="#">About</a></li>
             <li><a href="#">Contact</a></li>
@@ -207,332 +292,20 @@
     </div>
   </footer>
 
-  <script src="/static/js/config.js"></script>
-  <script src="/static/js/init.js"></script>
-  <script src="/static/js/app.js"></script>
+  <nav class="bottom-nav" id="bottomNav" aria-label="Mobile quick navigation">
+    <div class="bottom-nav-content">
+      <a href="../index.html" class="bottom-nav-item" aria-label="Home"><i class="fas fa-house"></i><span>Home</span></a>
+      <a href="products.html" class="bottom-nav-item" aria-label="Shop"><i class="fas fa-store"></i><span>Shop</span></a>
+      <a href="cart.html" class="bottom-nav-item" aria-label="Cart"><i class="fas fa-cart-shopping"></i><span>Cart</span></a>
+      <a href="admin.html" class="bottom-nav-item" aria-label="Dashboard"><i class="fas fa-chart-line"></i><span>Dashboard</span></a>
+    </div>
+  </nav>
+
+  <script src="../static/js/config.js?v=20260423-1"></script>
+  <script src="../static/js/init.js?v=20260423-1"></script>
+  <script src="../static/js/app.js?v=20260423-1"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      if (!checkAuth()) {
-        window.location.href = 'login.html';
-        return;
-      }
-
-      loadAdminData();
-      
-      const userStr = localStorage.getItem('user');
-      if (userStr) {
-        const user = JSON.parse(userStr);
-        document.getElementById('user-name').textContent = user.username || 'Admin';
-      }
-    });
-
-    async function loadAdminData() {
-      try {
-        const token = localStorage.getItem(TOKEN_KEY);
-        if (!token) return;
-        const headers = { 'Authorization': `Token ${token}` };
-
-        // 1. Fetch Stats
-        const statsRes = await fetch(`${API_BASE_URL}/admin/stats/`, { headers });
-        if (statsRes.ok) {
-            const statsArr = await statsRes.json();
-            const stats = statsArr[0] || statsArr; // DRF ViewSet list might return array
-            
-            ['total_orders', 'total_users', 'pending_prescriptions', 'pending_orders', 'revenue'].forEach(key => {
-                const el = document.getElementById(`admin-${key.replace(/_/g, '-')}`);
-                if (el && stats[key] !== undefined) el.textContent = stats[key];
-            });
-            // Update overview stat cards just to be safe
-            document.querySelectorAll('.stat-value').forEach((el, index) => {
-                if(index === 0) el.textContent = stats.total_orders || 0;
-                else if(index === 1) el.textContent = stats.total_users || 0;
-                else if(index === 2) el.textContent = stats.pending_prescriptions || 0;
-                else if(index === 3) el.textContent = stats.pending_orders || 0;
-            });
-        }
-
-        // 2. Fetch Products
-        const productsRes = await fetch(`${API_BASE_URL}/products/`);
-        if (productsRes.ok) {
-            const productsData = await productsRes.json();
-            const products = productsData.results || productsData;
-            
-            const tableHtml = `
-            <div class="table-responsive">
-              <table class="table" style="width:100%; border-collapse:collapse; text-align:left;">
-                <thead>
-                  <tr style="border-bottom:2px solid #ddd; background:#f9f9f9;">
-                    <th style="padding:12px;">ID</th>
-                    <th style="padding:12px;">Name</th>
-                    <th style="padding:12px;">Brand</th>
-                    <th style="padding:12px;">Price (₹)</th>
-                    <th style="padding:12px;">Stock</th>
-                    <th style="padding:12px;">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${products.map(p => `
-                  <tr style="border-bottom:1px solid #eee;">
-                    <td style="padding:12px;">#${p.id}</td>
-                    <td style="padding:12px;"><strong>${p.name}</strong></td>
-                    <td style="padding:12px;">${p.brand || 'N/A'}</td>
-                    <td style="padding:12px;">₹${p.price}</td>
-                    <td style="padding:12px;">${p.stock}</td>
-                    <td style="padding:12px;">
-                        <button class="btn btn-sm btn-primary" onclick="showEditProductModal('${p.id}', '${p.name.replace(/'/g, "\\'")}', '${p.brand ? p.brand.replace(/'/g, "\\'") : ''}', ${p.price}, ${p.stock}, '${p.prescription_required}')">Edit</button>
-                        <button class="btn btn-sm" style="background:#dc3545;color:white;" onclick="deleteProduct(${p.id})">Delete</button>
-                    </td>
-                  </tr>`).join('')}
-                </tbody>
-              </table>
-            </div>`;
-            document.getElementById('adminProductsList').innerHTML = tableHtml;
-        }
-
-        // 3. Fetch Orders
-        const ordersRes = await fetch(`${API_BASE_URL}/orders/`, { headers });
-        if (ordersRes.ok) {
-            const ordersData = await ordersRes.json();
-            const orders = Array.isArray(ordersData) ? ordersData : (ordersData.results || []);
-            
-            const ordersHtml = `
-            <div class="table-responsive">
-              <table class="table" style="width:100%; border-collapse:collapse; text-align:left;">
-                <thead>
-                  <tr style="border-bottom:2px solid #ddd; background:#f9f9f9;">
-                    <th style="padding:12px;">Order ID</th>
-                    <th style="padding:12px;">Date</th>
-                    <th style="padding:12px;">Amount</th>
-                    <th style="padding:12px;">Status</th>
-                    <th style="padding:12px;">Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${orders.map(o => `
-                  <tr style="border-bottom:1px solid #eee;">
-                    <td style="padding:12px;">#${o.id}</td>
-                    <td style="padding:12px;">${new Date(o.placed_at || o.created_at).toLocaleDateString()}</td>
-                    <td style="padding:12px;">₹${o.total_amount}</td>
-                    <td style="padding:12px;">
-                        <span class="status-badge status-${(o.status||'').toLowerCase()}">${o.status}</span>
-                    </td>
-                    <td style="padding:12px;">
-                        <select onchange="updateOrderStatus(${o.id}, this.value)" style="padding:5px; border-radius:4px; border:1px solid #ccc;">
-                            <option value="">Update Status...</option>
-                            <option value="placed" ${o.status==='placed'?'selected':''}>Placed</option>
-                            <option value="confirmed" ${o.status==='confirmed'?'selected':''}>Confirmed</option>
-                            <option value="shipped" ${o.status==='shipped'?'selected':''}>Shipped</option>
-                            <option value="delivered" ${o.status==='delivered'?'selected':''}>Delivered</option>
-                            <option value="cancelled" ${o.status==='cancelled'?'selected':''}>Cancelled</option>
-                        </select>
-                    </td>
-                  </tr>`).join('')}
-                </tbody>
-              </table>
-            </div>`;
-            document.getElementById('adminOrdersList').innerHTML = ordersHtml;
-            
-            // Also update Recent Orders in Overview
-            const recentOrdersHtml = orders.slice(0, 5).map(o => `
-            <tr>
-                <td>#${o.id}</td>
-                <td>${new Date(o.placed_at || o.created_at).toLocaleDateString()}</td>
-                <td><span class="status-badge status-${(o.status||'').toLowerCase()}">${o.status}</span></td>
-                <td>₹${o.total_amount}</td>
-            </tr>
-            `).join('');
-            const recentOrdersList = document.getElementById('recentOrdersList');
-            if (recentOrdersList) recentOrdersList.innerHTML = recentOrdersHtml;
-        }
-
-        // 4. Fetch Users
-        const usersRes = await fetch(`${API_BASE_URL}/admin/users/`, { headers });
-        if (usersRes.ok) {
-            const usersData = await usersRes.json();
-            const users = Array.isArray(usersData) ? usersData : (usersData.results || []);
-            
-            const usersHtml = `
-            <div class="table-responsive">
-              <table class="table" style="width:100%; border-collapse:collapse; text-align:left;">
-                <thead>
-                  <tr style="border-bottom:2px solid #ddd; background:#f9f9f9;">
-                    <th style="padding:12px;">ID</th>
-                    <th style="padding:12px;">Username</th>
-                    <th style="padding:12px;">Email</th>
-                    <th style="padding:12px;">Role</th>
-                    <th style="padding:12px;">Joined</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${users.map(u => `
-                  <tr style="border-bottom:1px solid #eee;">
-                    <td style="padding:12px;">#${u.id}</td>
-                    <td style="padding:12px;"><strong>${u.username}</strong></td>
-                    <td style="padding:12px;">${u.email}</td>
-                    <td style="padding:12px;">${u.is_staff ? '<span style="color:red;font-weight:bold;">Admin</span>' : 'Customer'}</td>
-                    <td style="padding:12px;">${new Date(u.date_joined).toLocaleDateString()}</td>
-                  </tr>`).join('')}
-                </tbody>
-              </table>
-            </div>`;
-            document.getElementById('adminUsersList').innerHTML = usersHtml;
-        }
-
-        // 5. Fetch prescriptions pending review
-        const prescriptionRes = await fetch(`${API_BASE_URL}/prescriptions/?status=pending`, { headers });
-        if (prescriptionRes.ok) {
-          const prescriptionData = await prescriptionRes.json();
-          const prescriptions = prescriptionData.results || prescriptionData || [];
-          document.getElementById('adminPrescriptionsList').innerHTML = prescriptions.map(p => `
-            <div class="summary-card" style="margin-bottom:12px;">
-              <p><strong>User:</strong> ${p.user_name || 'N/A'} (ID: ${p.user_id || '-'}) | <strong>Status:</strong> ${p.status}</p>
-              <p><a href="${p.file}" target="_blank" rel="noopener">Preview Prescription File</a></p>
-              <textarea id="note-${p.id}" placeholder="Add admin notes" rows="2" style="width:100%; margin:8px 0;">${p.admin_notes || ''}</textarea>
-              <div style="display:flex; gap:8px;">
-                <button class="btn btn-primary" onclick="reviewPrescription(${p.id}, 'approved')">Approve</button>
-                <button class="btn btn-outline" onclick="reviewPrescription(${p.id}, 'rejected')">Reject</button>
-              </div>
-            </div>
-          `).join('') || '<p>No pending prescriptions.</p>';
-        }
-
-        // 6. Fetch chart stats
-        const chartRes = await fetch(`${API_BASE_URL}/admin/stats/chart/`, { headers });
-        if (chartRes.ok) {
-          const chartData = await chartRes.json();
-          renderOrdersChart(chartData);
-        }
-        
-      } catch (error) {
-        reportClientError('Error loading admin data', error, 'Unable to load admin dashboard data.');
-      }
-    }
-
-    async function updateOrderStatus(orderId, newStatus) {
-        if(!newStatus) return;
-        try {
-            const token = localStorage.getItem(TOKEN_KEY);
-            const response = await fetch(`${API_BASE_URL}/orders/${orderId}/update_status/`, {
-              method: 'POST',
-                headers: { 
-                    'Authorization': `Token ${token}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ status: newStatus })
-            });
-            if(response.ok) {
-                alert('Order status updated implicitly to: ' + newStatus);
-                loadAdminData(); // Refresh list
-            } else {
-                alert('Failed to update status');
-            }
-        } catch(e) { console.log(e); }
-    }
-
-    async function reviewPrescription(prescriptionId, status) {
-      const token = localStorage.getItem(TOKEN_KEY);
-      const note = document.getElementById(`note-${prescriptionId}`)?.value || '';
-      const response = await fetch(`${API_BASE_URL}/prescriptions/${prescriptionId}/`, {
-        method: 'PATCH',
-        headers: {
-          'Authorization': `Token ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          status,
-          admin_notes: note
-        })
-      });
-
-      if (response.ok) {
-        loadAdminData();
-      } else {
-        alert('Failed to update prescription');
-      }
-    }
-
-    let ordersChart = null;
-    function renderOrdersChart(points) {
-      const ctx = document.getElementById('ordersChart');
-      if (!ctx) return;
-      if (ordersChart) {
-        ordersChart.destroy();
-      }
-
-      ordersChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: points.map(p => p.month),
-          datasets: [
-            {
-              label: 'Orders',
-              data: points.map(p => p.order_count),
-              borderColor: '#0ea5e9',
-              backgroundColor: 'rgba(14,165,233,0.15)',
-              tension: 0.35,
-              yAxisID: 'y'
-            },
-            {
-              label: 'Revenue (INR)',
-              data: points.map(p => p.revenue),
-              borderColor: '#10b981',
-              backgroundColor: 'rgba(16,185,129,0.15)',
-              tension: 0.35,
-              yAxisID: 'y1'
-            }
-          ]
-        },
-        options: {
-          responsive: true,
-          scales: {
-            y: { position: 'left' },
-            y1: { position: 'right', grid: { drawOnChartArea: false } }
-          }
-        }
-      });
-    }
-
-    function showTab(tabId) {
-      // Hide all tabs
-      document.querySelectorAll('.tab-content').forEach(tab => {
-        tab.classList.remove('active');
-      });
-      // Remove active class from all nav items
-      document.querySelectorAll('.dashboard-nav .nav-item').forEach(item => {
-        item.classList.remove('active');
-      });
-
-      // Show selected tab
-      document.getElementById(`${tabId}Tab`).classList.add('active');
-      
-      // Highlight selected nav item
-      const activeBtn = document.querySelector(`.dashboard-nav button[onclick="showTab('${tabId}')"]`);
-      if (activeBtn) activeBtn.classList.add('active');
-    }
-
-    function showAddProductModal() {
-        alert("Product addition functionality placeholder");
-    }
-
-    // Handle logout
-    document.getElementById('logoutBtn')?.addEventListener('click', async () => {
-      try {
-        await fetch(`${API_BASE_URL}/auth/logout/`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Token ${localStorage.getItem(TOKEN_KEY)}`
-          }
-        });
-      } catch (e) {
-        console.log('Logout error', e);
-      } finally {
-        localStorage.removeItem(TOKEN_KEY);
-        localStorage.removeItem('user');
-        window.location.href = '/login/';
-      }
-    });
-  </script>
+  <script src="../static/js/admin-page.js?v=20260423-2"></script>
 
   <!-- Modals for Admin -->
   <!-- Product Modal -->
@@ -569,84 +342,6 @@
     </div>
   </div>
 
-  <script>
-    function showAddProductModal() {
-        document.getElementById('productModalTitle').innerText = 'Add New Product';
-        document.getElementById('productForm').reset();
-        document.getElementById('productId').value = '';
-        document.getElementById('productModal').style.display = 'flex';
-    }
-
-    function showEditProductModal(id, name, brand, price, stock, rx) {
-        document.getElementById('productModalTitle').innerText = 'Edit Product';
-        document.getElementById('productId').value = id;
-        document.getElementById('productName').value = name;
-        document.getElementById('productBrand').value = brand || '';
-        document.getElementById('productPrice').value = price;
-        document.getElementById('productStock').value = stock;
-        document.getElementById('productRx').checked = rx === 'true';
-        document.getElementById('productModal').style.display = 'flex';
-    }
-
-    function closeProductModal() {
-        document.getElementById('productModal').style.display = 'none';
-    }
-
-    document.getElementById('productForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const id = document.getElementById('productId').value;
-        const payload = {
-            name: document.getElementById('productName').value,
-            brand: document.getElementById('productBrand').value,
-            price: document.getElementById('productPrice').value,
-            stock: document.getElementById('productStock').value,
-            prescription_required: document.getElementById('productRx').checked,
-            category: 1, // Default to 1 for simplicity right now
-            brand: document.getElementById('productBrand').value || 'Generic',
-            description: document.getElementById('productName').value + ' description',
-            dosage: 'Standard'
-        };
-
-        const method = id ? 'PATCH' : 'POST';
-        const url = id ? `${API_BASE_URL}/products/${id}/` : `${API_BASE_URL}/products/`;
-
-        try {
-            const token = localStorage.getItem(TOKEN_KEY);
-            const res = await fetch(url, {
-                method: method,
-                headers: {
-                    'Authorization': `Token ${token}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(payload)
-            });
-            if(res.ok) {
-                closeProductModal();
-                loadAdminData(); // Refresh table
-            } else {
-                alert('Failed to save product. Need more data?');
-            }
-        } catch(err) {
-          reportClientError('Error saving product', err, 'Unable to save product.');
-        }
-    });
-
-    async function deleteProduct(id) {
-        if(!confirm('Are you sure you want to delete Product #' + id + '?')) return;
-        try {
-            const token = localStorage.getItem(TOKEN_KEY);
-            const res = await fetch(`${API_BASE_URL}/products/${id}/`, {
-                method: 'DELETE',
-                headers: { 'Authorization': `Token ${token}` }
-            });
-            if(res.ok) {
-                loadAdminData();
-            } else {
-                alert('Failed to delete.');
-            }
-        } catch(e) { reportClientError('Error deleting product', e, 'Unable to delete product.'); }
-    }
-  </script>
 </body>
 
 </html>

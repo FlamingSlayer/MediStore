@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -16,7 +16,7 @@
     <div class="container">
       <div class="header-inner">
         <a href="index.html" class="logo">
-          <div class="logo-icon"><i class="fas fa-pills"></i></div>
+          <div class="logo-icon"><i class="fas fa-capsules"></i></div>
           <span class="logo-text">MediStore</span>
         </a>
         
@@ -68,7 +68,7 @@
         </p>
 
         <form id="prescriptionForm">
-          <div class="form-group">
+          <div class="form-group no-floating">
             <label for="medicine_name">Medicine Name</label>
             <input 
               type="text" 
@@ -80,7 +80,7 @@
             <small>Separate multiple medicines with comma</small>
           </div>
 
-          <div class="form-group">
+          <div class="form-group no-floating">
             <label for="prescription_file">Prescription File</label>
             <div id="fileUploadArea" style="border: 2px dashed var(--border); border-radius: 10px; padding: 40px; text-align: center; cursor: pointer; transition: var(--transition); background-color: var(--bg-gray);">
               <i class="fas fa-cloud-upload-alt" style="font-size: 3rem; color: var(--primary); margin-bottom: 15px; display: block;"></i>
@@ -110,7 +110,7 @@
             </div>
           </div>
 
-          <div class="form-group">
+          <div class="form-group no-floating">
             <label for="notes">Additional Notes (Optional)</label>
             <textarea 
               id="notes" 
@@ -353,3 +353,5 @@
   </script>
 </body>
 </html>
+
+

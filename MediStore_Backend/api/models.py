@@ -134,6 +134,7 @@ class Order(models.Model):
         ('confirmed', 'Confirmed'),
         ('shipped', 'Shipped'),
         ('delivered', 'Delivered'),
+        ('failed_delivery', 'Failed Delivery'),
         ('cancelled', 'Cancelled'),
     ]
     
@@ -155,6 +156,11 @@ class Order(models.Model):
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
     coupon_discount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     return_requested = models.BooleanField(default=False)
+    courier_name = models.CharField(max_length=120, blank=True, null=True)
+    tracking_id = models.CharField(max_length=120, blank=True, null=True)
+    shipping_notes = models.TextField(blank=True, null=True)
+    delivery_attempts = models.PositiveIntegerField(default=0)
+    last_delivery_attempt_at = models.DateTimeField(blank=True, null=True)
     
     notes = models.TextField(blank=True, null=True)
     placed_at = models.DateTimeField(auto_now_add=True)
@@ -200,6 +206,28 @@ class OrderItem(models.Model):
     @property
     def final_price(self):
         return self.subtotal - self.discount_amount
+
+
+class ShippingEvent(models.Model):
+    EVENT_CHOICES = [
+        ('tracking_updated', 'Tracking Updated'),
+        ('dispatched', 'Dispatched'),
+        ('delivery_attempt_failed', 'Delivery Attempt Failed'),
+        ('delivered', 'Delivered'),
+        ('note_added', 'Note Added'),
+    ]
+
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='shipping_events')
+    event_type = models.CharField(max_length=40, choices=EVENT_CHOICES)
+    note = models.TextField(blank=True, null=True)
+    actor = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True, related_name='shipping_events')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.order.order_number} - {self.event_type}"
 
 
 class Payment(models.Model):

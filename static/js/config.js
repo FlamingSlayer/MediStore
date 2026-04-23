@@ -1,5 +1,23 @@
 // Global API Configuration
-const API_BASE_URL = 'http://localhost:8000/api';
+function resolveApiBaseUrl() {
+  const isHttp = window.location.protocol === 'http:' || window.location.protocol === 'https:';
+  if (!isHttp) {
+    return 'http://localhost:8000/api';
+  }
+
+  const host = window.location.hostname;
+  const port = window.location.port;
+  const protocol = window.location.protocol;
+
+  // If frontend is served from Live Server or another local port, route API to Django on :8000.
+  if ((host === 'localhost' || host === '127.0.0.1') && port && port !== '8000') {
+    return `${protocol}//${host}:8000/api`;
+  }
+
+  return `${window.location.origin}/api`;
+}
+
+const API_BASE_URL = resolveApiBaseUrl();
 const TOKEN_KEY = 'access_token';
 const DEBUG = false;
 

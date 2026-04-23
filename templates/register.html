@@ -15,7 +15,7 @@
   <header class="header">
     <div class="container">
       <a href="index.html" class="logo">
-        <div class="logo-icon"><i class="fas fa-pills"></i></div>
+        <div class="logo-icon"><i class="fas fa-capsules"></i></div>
         <span class="logo-text">MediStore</span>
       </a>
     </div>
@@ -29,7 +29,7 @@
       </div>
 
       <form id="registerForm" class="auth-form">
-        <div class="form-group">
+        <div class="form-group no-floating">
           <label for="first_name">First Name</label>
           <input 
             type="text" 
@@ -40,7 +40,7 @@
           >
         </div>
 
-        <div class="form-group">
+        <div class="form-group no-floating">
           <label for="last_name">Last Name</label>
           <input 
             type="text" 
@@ -51,7 +51,7 @@
           >
         </div>
 
-        <div class="form-group">
+        <div class="form-group no-floating">
           <label for="email">Email</label>
           <input 
             type="email" 
@@ -62,7 +62,7 @@
           >
         </div>
 
-        <div class="form-group">
+        <div class="form-group no-floating">
           <label for="username_reg">Username</label>
           <input 
             type="text" 
@@ -73,7 +73,7 @@
           >
         </div>
 
-        <div class="form-group">
+        <div class="form-group no-floating">
           <label for="phone">Phone Number</label>
           <input 
             type="tel" 
@@ -84,7 +84,7 @@
           >
         </div>
 
-        <div class="form-group">
+        <div class="form-group no-floating">
           <label for="password_reg">Password</label>
           <input 
             type="password" 
@@ -93,10 +93,16 @@
             required 
             placeholder="Create a strong password"
           >
+          <div class="password-strength" id="passwordStrengthMeter">
+            <span class="strength-bar empty"></span>
+            <span class="strength-bar empty"></span>
+            <span class="strength-bar empty"></span>
+          </div>
+          <span class="strength-text">Empty</span>
           <small>At least 8 characters</small>
         </div>
 
-        <div class="form-group">
+        <div class="form-group no-floating">
           <label for="confirm_password">Confirm Password</label>
           <input 
             type="password" 
@@ -107,7 +113,7 @@
           >
         </div>
 
-        <div class="form-group checkbox">
+        <div class="form-group no-floating checkbox">
           <input type="checkbox" id="terms" name="terms" required>
           <label for="terms">I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></label>
         </div>
@@ -139,7 +145,7 @@
       <div class="footer-content">
         <div class="footer-col">
           <div class="logo" style="margin-bottom: 1.5rem; text-decoration: none;">
-            <div class="logo-icon"><i class="fas fa-pills"></i></div>
+            <div class="logo-icon"><i class="fas fa-capsules"></i></div>
             <span class="logo-text" style="color: white;">MediStore</span>
           </div>
           <p style="color: rgba(255,255,255,0.8); line-height: 1.8; margin-bottom: 1.5rem;">Your trusted online pharmacy for quality medicines and healthcare products. Available 24/7.</p>
@@ -250,12 +256,13 @@
           // Save token
           localStorage.setItem(TOKEN_KEY, data.token);
           localStorage.setItem('user', JSON.stringify(data.user));
+          const isAdmin = !!(data.user && (data.user.is_staff || data.user.is_superuser));
           
           successDiv.textContent = 'Account created successfully! Redirecting...';
           successDiv.style.display = 'block';
           
           setTimeout(() => {
-            window.location.href = 'dashboard.html';
+            window.location.href = isAdmin ? 'admin.html' : 'dashboard.html';
           }, 1500);
         } else {
           const errorMsg = data.error || data.message || 'Registration failed';
@@ -277,11 +284,19 @@
       setupThemeToggle();
       setupMobileMenu();
       if (localStorage.getItem(TOKEN_KEY)) {
-        window.location.href = 'dashboard.html';
+        try {
+          const user = JSON.parse(localStorage.getItem('user') || '{}');
+          const isAdmin = !!(user.is_staff || user.is_superuser);
+          window.location.href = isAdmin ? 'admin.html' : 'dashboard.html';
+        } catch (e) {
+          window.location.href = 'dashboard.html';
+        }
       }
     });
   </script>
 </body>
 </html>
+
+
 
 

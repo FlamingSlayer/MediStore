@@ -1,6 +1,17 @@
 // Global variables (try to get from config.js, fall back to defaults)
 if (typeof API_BASE_URL === 'undefined') {
-  window.API_BASE_URL = 'http://127.0.0.1:8000/api';
+  const isHttp = window.location.protocol === 'http:' || window.location.protocol === 'https:';
+  if (!isHttp) {
+    window.API_BASE_URL = 'http://127.0.0.1:8000/api';
+  } else {
+    const host = window.location.hostname;
+    const port = window.location.port;
+    const protocol = window.location.protocol;
+    window.API_BASE_URL =
+      (host === 'localhost' || host === '127.0.0.1') && port && port !== '8000'
+        ? `${protocol}//${host}:8000/api`
+        : `${window.location.origin}/api`;
+  }
 }
 if (typeof TOKEN_KEY === 'undefined') {
   window.TOKEN_KEY = 'access_token';
@@ -59,6 +70,21 @@ function showToast(message, type = 'info', duration = 3000) {
   setTimeout(() => {
     toast.remove();
   }, duration);
+}
+
+/**
+ * Inject futuristic font families globally on every page.
+ */
+function ensureFuturisticFonts() {
+  if (document.getElementById('futuristic-fonts')) {
+    return;
+  }
+
+  const link = document.createElement('link');
+  link.id = 'futuristic-fonts';
+  link.rel = 'stylesheet';
+  link.href = 'https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Outfit:wght@400;500;600;700&display=swap';
+  document.head.appendChild(link);
 }
 
 /**
@@ -139,6 +165,51 @@ function logout() {
   localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem('user');
   window.location.href = 'index.html';
+}
+
+/**
+ * Check if user has admin access
+ */
+function checkAdminAccess() {
+  const token = localStorage.getItem(TOKEN_KEY);
+  const user = localStorage.getItem('user');
+  const serverAdmin = document.body?.dataset?.serverAdmin === 'true';
+
+  if ((!token || !user) && serverAdmin) {
+    // Session-authenticated admin page render (Django login flow)
+    return true;
+  }
+
+  if (!token || !user) {
+    showAccessDenied('Please login to access admin dashboard', 'login.html');
+    return false;
+  }
+
+  try {
+    const userData = JSON.parse(user);
+    if (!userData.is_staff && !userData.is_superuser) {
+      // Not an admin - redirect to home
+      showAccessDenied('You do not have permission to access the admin dashboard. Only administrators can access this page.', 'index.html');
+      return false;
+    }
+    return true;
+  } catch (error) {
+    console.error('Error checking admin access:', error);
+    showAccessDenied('Error verifying admin access', 'index.html');
+    return false;
+  }
+}
+
+/**
+ * Show access denied message and redirect
+ */
+function showAccessDenied(message, redirectUrl) {
+  // Show alert
+  alert('❌ Access Denied\n\n' + message);
+  // Redirect after a short delay
+  setTimeout(() => {
+    window.location.href = redirectUrl;
+  }, 500);
 }
 
 /**
@@ -557,8 +628,10 @@ function formatProduct(product) {
     discountedPrice: product.discount_price,
     hasDiscount: product.discount_percentage > 0,
     displayDiscount: product.discount_percentage ? `${product.discount_percentage}%` : null
-});
-  // ==================== PHASE 1: FORM VALIDATION & INTERACTION ====================
+  };
+}
+
+// ==================== PHASE 1: FORM VALIDATION & INTERACTION ====================
 
   /**
    * Initialize floating labels on form group
@@ -584,7 +657,7 @@ function formatProduct(product) {
    * Initialize all floating labels on page
    */
   function initFloatingLabels() {
-    const formGroups = document.querySelectorAll('.form-group');
+    const formGroups = document.querySelectorAll('.form-group.floating-enabled:not(.no-floating)');
     formGroups.forEach(initFloatingLabel);
   }
 
@@ -771,7 +844,7 @@ function formatProduct(product) {
     }
 
     try {
-      const response = await fetch(`${API_BASE_URL}/cart/add/`, {
+      const response = await fetch(`${API_BASE_URL}/cart/add_item/`, {
         method: 'POST',
         headers: {
           ...getAuthHeader(),
@@ -786,6 +859,7 @@ function formatProduct(product) {
       const data = await response.json();
       if (response.ok) {
         showToast(`Added to cart!`, 'success');
+        animateFlyToCart(e?.currentTarget);
         updateCartCount();
       } else {
         showToast(data.error || 'Failed to add to cart', 'error');
@@ -800,6 +874,42 @@ function formatProduct(product) {
    */
   function updateCartCount() {
     // Placeholder for cart badge update functionality
+  }
+
+  /**
+   * Add-to-cart micro interaction: fly icon to cart button in header.
+   */
+  function animateFlyToCart(sourceEl) {
+    const target = document.querySelector('a[href="cart.html"], .fa-cart-shopping, .fa-shopping-cart');
+    if (!sourceEl || !target) return;
+
+    const sourceRect = sourceEl.getBoundingClientRect();
+    const targetRect = target.getBoundingClientRect();
+
+    const flyer = document.createElement('div');
+    flyer.innerHTML = '<i class="fas fa-cart-plus"></i>';
+    flyer.style.position = 'fixed';
+    flyer.style.left = `${sourceRect.left + sourceRect.width / 2}px`;
+    flyer.style.top = `${sourceRect.top + sourceRect.height / 2}px`;
+    flyer.style.width = '28px';
+    flyer.style.height = '28px';
+    flyer.style.borderRadius = '50%';
+    flyer.style.background = 'var(--primary)';
+    flyer.style.color = '#fff';
+    flyer.style.display = 'flex';
+    flyer.style.alignItems = 'center';
+    flyer.style.justifyContent = 'center';
+    flyer.style.zIndex = '9999';
+    flyer.style.pointerEvents = 'none';
+    flyer.style.transition = 'transform 650ms cubic-bezier(.2,.8,.2,1), opacity 650ms';
+    document.body.appendChild(flyer);
+
+    requestAnimationFrame(() => {
+      flyer.style.transform = `translate(${targetRect.left - sourceRect.left}px, ${targetRect.top - sourceRect.top}px) scale(0.4)`;
+      flyer.style.opacity = '0.2';
+    });
+
+    setTimeout(() => flyer.remove(), 700);
   }
 
   /* ==================== Mobile Bottom Navigation ====================*/
@@ -847,15 +957,142 @@ function formatProduct(product) {
     }
   }
 
+  let deferredInstallPrompt = null;
+  function initInstallPrompt() {
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredInstallPrompt = e;
+
+      const visits = Number(localStorage.getItem('install_prompt_visits') || 0) + 1;
+      localStorage.setItem('install_prompt_visits', String(visits));
+      const dismissed = localStorage.getItem('install_prompt_dismissed') === 'true';
+      if (dismissed || visits < 3) return;
+
+      if (!document.getElementById('installPromptBanner')) {
+        const banner = document.createElement('div');
+        banner.id = 'installPromptBanner';
+        banner.className = 'install-banner';
+        banner.innerHTML = `
+          <span>Install MediStore for faster access</span>
+          <button type="button" class="btn btn-sm btn-primary" id="installNowBtn">Install</button>
+          <button type="button" class="btn btn-sm btn-outline" id="dismissInstallBtn">Later</button>
+        `;
+        document.body.appendChild(banner);
+
+        const installNow = banner.querySelector('#installNowBtn');
+        const dismiss = banner.querySelector('#dismissInstallBtn');
+
+        installNow?.addEventListener('click', async () => {
+          if (!deferredInstallPrompt) return;
+          deferredInstallPrompt.prompt();
+          await deferredInstallPrompt.userChoice;
+          deferredInstallPrompt = null;
+          banner.classList.remove('show');
+        });
+
+        dismiss?.addEventListener('click', () => {
+          localStorage.setItem('install_prompt_dismissed', 'true');
+          banner.classList.remove('show');
+        });
+      }
+
+      document.getElementById('installPromptBanner')?.classList.add('show');
+    });
+  }
+
+  /**
+   * Pro motion: reveal sections/cards on scroll for a premium feel.
+   */
+  function initProAnimations() {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      return;
+    }
+
+    const revealTargets = document.querySelectorAll(
+      'section, .product-card, .feature-card, .summary-card, .stat-card, .order-card, .address-card, .cart-item, .auth-card'
+    );
+
+    if (!revealTargets.length) {
+      return;
+    }
+
+    revealTargets.forEach((el, index) => {
+      el.classList.add('reveal-item');
+      el.style.setProperty('--reveal-delay', `${Math.min((index % 8) * 60, 360)}ms`);
+    });
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      {
+        threshold: 0.14,
+        rootMargin: '0px 0px -40px 0px',
+      }
+    );
+
+    revealTargets.forEach((el) => observer.observe(el));
+  }
+
+  /**
+   * Add richer futuristic interactions globally.
+   */
+  function initFuturisticExperience() {
+    ensureFuturisticFonts();
+
+    requestAnimationFrame(() => {
+      document.body.classList.add('page-ready');
+    });
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      return;
+    }
+
+    const interactiveCards = document.querySelectorAll(
+      '.product-card, .feature-card, .summary-card, .stat-card, .order-card, .address-card, .category-card, .cart-item'
+    );
+
+    interactiveCards.forEach((card) => {
+      card.addEventListener('mousemove', (event) => {
+        const rect = card.getBoundingClientRect();
+        const offsetX = ((event.clientX - rect.left) / rect.width - 0.5) * 8;
+        const offsetY = ((event.clientY - rect.top) / rect.height - 0.5) * -8;
+        card.style.transform = `translateY(-6px) rotateX(${offsetY}deg) rotateY(${offsetX}deg)`;
+      });
+
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = '';
+      });
+    });
+  }
+
   /**
    * Initialize page
    */
   document.addEventListener('DOMContentLoaded', () => {
+    initFuturisticExperience();
     setupThemeToggle();
     setupMobileMenu();
     checkAuth();
     initFloatingLabels();
     initBottomNav();
+    initInstallPrompt();
+    initProAnimations();
+    initFormValidation('#registerForm');
+    initFormValidation('#loginForm');
+    initFormValidation('#checkoutForm');
+
+    const passwordInput = document.getElementById('password_reg');
+    if (passwordInput) {
+      passwordInput.addEventListener('input', () => {
+        updatePasswordStrength(passwordInput, 'passwordStrengthMeter');
+      });
+    }
   });
 
   // ==================== Export for use in modules ====================

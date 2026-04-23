@@ -105,6 +105,8 @@ def login_view(request):
             if user is not None:
                 login(request, user)
                 messages.success(request, 'Login successful!')
+                if user.is_staff or user.is_superuser:
+                    return redirect('admin_dashboard')
                 return redirect('user_dashboard')
             else:
                 messages.error(request, 'Invalid username or password.')
@@ -402,7 +404,7 @@ def delete_address(request, address_id):
 @login_required(login_url='login')
 def admin_dashboard(request):
     """Admin dashboard"""
-    if not request.user.is_staff:
+    if not (request.user.is_staff or request.user.is_superuser):
         messages.error(request, 'You do not have permission to access this page.')
         return redirect('home')
     
@@ -422,4 +424,8 @@ def admin_dashboard(request):
     }
     return render(request, 'admin.html', context)
 
+
+def admin_test(request):
+    """Admin diagnostic test page"""
+    return render(request, 'admin-test.html')
 

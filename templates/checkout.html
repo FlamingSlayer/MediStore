@@ -17,7 +17,7 @@
     <div class="container">
       <div class="header-inner">
         <a href="index.html" class="logo">
-          <div class="logo-icon"><i class="fas fa-pills"></i></div>
+          <div class="logo-icon"><i class="fas fa-capsules"></i></div>
           <span class="logo-text">MediStore</span>
         </a>
       </div>
@@ -39,10 +39,21 @@
         <section class="checkout-form">
           <h1>Checkout</h1>
 
+          <div class="checkout-steps" id="checkoutSteps">
+            <div class="checkout-step active" data-step="0"><span class="step-dot"></span>Address</div>
+            <div class="checkout-step" data-step="1"><span class="step-dot"></span>Prescription</div>
+            <div class="checkout-step" data-step="2"><span class="step-dot"></span>Payment</div>
+            <div class="checkout-step" data-step="3"><span class="step-dot"></span>Confirm</div>
+          </div>
+
           <form id="checkoutForm">
             <!-- Delivery Address Section -->
             <div class="form-section">
-              <h2><i class="fas fa-map-marker-alt"></i> Delivery Address</h2>
+              <button type="button" class="section-toggle" onclick="toggleSection(this)">
+                <span style="font-size:1.25rem;font-weight:600;"><i class="fas fa-map-marker-alt"></i> Delivery Address</span>
+                <i class="fas fa-chevron-up"></i>
+              </button>
+              <div class="section-body" data-step-section="0">
               
               <div id="savedAddresses" class="saved-addresses">
                 <!-- Loaded by JavaScript -->
@@ -54,33 +65,34 @@
                   <input type="text" id="full_name" name="full_name">
                 </div>
 
-                <div class="form-group">
+                <div class="form-group no-floating">
                   <label for="phone">Phone Number</label>
                   <input type="tel" id="phone" name="phone">
                 </div>
 
-                <div class="form-group">
+                <div class="form-group no-floating">
                   <label for="street_address">Street Address</label>
-                  <input type="text" id="street_address" name="street_address">
+                  <input type="text" id="street_address" name="street_address" placeholder="Start typing address (Google Places ready)">
+                  <small>Autocomplete integration placeholder for Google Places.</small>
                 </div>
 
                 <div class="form-row">
-                  <div class="form-group">
+                  <div class="form-group no-floating">
                     <label for="city">City</label>
                     <input type="text" id="city" name="city">
                   </div>
-                  <div class="form-group">
+                  <div class="form-group no-floating">
                     <label for="state">State</label>
                     <input type="text" id="state" name="state">
                   </div>
                 </div>
 
                 <div class="form-row">
-                  <div class="form-group">
+                  <div class="form-group no-floating">
                     <label for="zip_code">ZIP Code</label>
                     <input type="text" id="zip_code" name="zip_code">
                   </div>
-                  <div class="form-group">
+                  <div class="form-group no-floating">
                     <label for="country">Country</label>
                     <input type="text" id="country" name="country" value="India">
                   </div>
@@ -100,11 +112,19 @@
               <button type="button" id="addAddressBtn" onclick="toggleNewAddress()" class="btn btn-outline" style="margin-top: 10px;">
                 <i class="fas fa-plus"></i> Add New Address
               </button>
+              <div style="margin-top: 12px; display:flex; justify-content:flex-end;">
+                <button type="button" class="btn btn-outline" onclick="setCheckoutStep(1)">Next</button>
+              </div>
+              </div>
             </div>
 
             <!-- Prescriptions Section -->
             <div class="form-section">
-              <h2><i class="fas fa-file"></i> Prescriptions</h2>
+              <button type="button" class="section-toggle" onclick="toggleSection(this)">
+                <span style="font-size:1.25rem;font-weight:600;"><i class="fas fa-file"></i> Prescriptions</span>
+                <i class="fas fa-chevron-down"></i>
+              </button>
+              <div class="section-body collapsed" data-step-section="1">
               
               <div id="prescriptionNote" class="info-box warning" style="display: none;">
                 <i class="fas fa-warning"></i>
@@ -114,33 +134,52 @@
               <div id="prescriptionsList">
                 <!-- Loaded by JavaScript -->
               </div>
+              <div style="margin-top: 12px; display:flex; justify-content:space-between;">
+                <button type="button" class="btn btn-link" onclick="setCheckoutStep(0)">Back</button>
+                <button type="button" class="btn btn-outline" onclick="setCheckoutStep(2)">Next</button>
+              </div>
+              </div>
             </div>
 
             <!-- Payment Section -->
             <div class="form-section">
-              <h2><i class="fas fa-credit-card"></i> Payment Method</h2>
+              <button type="button" class="section-toggle" onclick="toggleSection(this)">
+                <span style="font-size:1.25rem;font-weight:600;"><i class="fas fa-credit-card"></i> Payment Method</span>
+                <i class="fas fa-chevron-down"></i>
+              </button>
+              <div class="section-body collapsed" data-step-section="2">
               
               <div class="payment-methods-group">
                 <label class="radio-label">
                   <input type="radio" name="payment_method" value="cod" checked>
-                  <span>Cash on Delivery (COD)</span>
+                  <span><span class="payment-icon"><i class="fas fa-box"></i></span> Cash on Delivery (COD)</span>
                 </label>
                 <label class="radio-label">
                   <input type="radio" name="payment_method" value="online">
-                  <span>Online Payment (Razorpay)</span>
+                  <span><span class="payment-icon"><i class="fas fa-credit-card"></i></span> Online Payment (Razorpay / UPI / Card)</span>
                 </label>
+              </div>
+              <div style="margin-top: 12px; display:flex; justify-content:space-between;">
+                <button type="button" class="btn btn-link" onclick="setCheckoutStep(1)">Back</button>
+                <button type="button" class="btn btn-outline" onclick="setCheckoutStep(3)">Next</button>
+              </div>
               </div>
             </div>
 
             <div class="form-section">
-              <h2><i class="fas fa-ticket-alt"></i> Coupon</h2>
+              <button type="button" class="section-toggle" onclick="toggleSection(this)">
+                <span style="font-size:1.25rem;font-weight:600;"><i class="fas fa-ticket-alt"></i> Coupon</span>
+                <i class="fas fa-chevron-down"></i>
+              </button>
+              <div class="section-body collapsed" data-step-section="3">
               <div class="form-row">
-                <div class="form-group" style="flex: 1;">
+                <div class="form-group no-floating" style="flex: 1;">
                   <input type="text" id="couponCode" placeholder="Enter coupon code">
                 </div>
                 <button type="button" class="btn btn-outline" onclick="applyCoupon()">Apply</button>
               </div>
-              <p id="couponMessage" style="margin-top: 8px; color: var(--text-light);"></p>
+              <p id="couponMessage" class="coupon-feedback" style="margin-top: 8px; color: var(--text-light);"></p>
+              </div>
             </div>
 
             <!-- Terms & Conditions -->
@@ -230,6 +269,15 @@
     </div>
   </footer>
 
+  <nav class="bottom-nav" id="bottomNav" aria-label="Mobile quick navigation">
+    <div class="bottom-nav-content">
+      <a href="index.html" class="bottom-nav-item" aria-label="Home"><i class="fas fa-house"></i><span>Home</span></a>
+      <a href="products.html" class="bottom-nav-item" aria-label="Shop"><i class="fas fa-store"></i><span>Shop</span></a>
+      <a href="cart.html" class="bottom-nav-item" aria-label="Cart"><i class="fas fa-cart-shopping"></i><span>Cart</span></a>
+      <a href="dashboard.html" class="bottom-nav-item" aria-label="Dashboard"><i class="fas fa-chart-line"></i><span>Dashboard</span></a>
+    </div>
+  </nav>
+
   <script src="/static/js/config.js"></script>
   <script src="/static/js/init.js"></script>
   <script src="/static/js/app.js"></script>
@@ -239,11 +287,13 @@
     let addresses = [];
     let selectedAddressId = null;
     let couponDiscount = 0;
+    let currentCheckoutStep = 0;
 
     document.addEventListener('DOMContentLoaded', () => {
       setupThemeToggle();
       setupMobileMenu();
       checkAuth();
+      setCheckoutStep(0);
       if (!localStorage.getItem(TOKEN_KEY)) {
         window.location.href = 'login.html';
         return;
@@ -344,6 +394,36 @@
 
     function selectAddress(addressId) {
       selectedAddressId = addressId;
+      document.querySelectorAll('.address-card').forEach(card => {
+        const match = card.querySelector(`input[value="${addressId}"]`);
+        card.classList.toggle('selected', !!match);
+      });
+    }
+
+    function toggleSection(btn) {
+      const body = btn.parentElement.querySelector('.section-body');
+      if (!body) return;
+      body.classList.toggle('collapsed');
+      const icon = btn.querySelector('.fa-chevron-up, .fa-chevron-down');
+      if (icon) {
+        icon.classList.toggle('fa-chevron-up', !body.classList.contains('collapsed'));
+        icon.classList.toggle('fa-chevron-down', body.classList.contains('collapsed'));
+      }
+    }
+
+    function setCheckoutStep(step) {
+      currentCheckoutStep = step;
+      document.querySelectorAll('[data-step-section]').forEach((section, idx) => {
+        section.classList.toggle('collapsed', idx !== step);
+      });
+      document.querySelectorAll('.checkout-step').forEach((item, idx) => {
+        item.classList.toggle('active', idx === step);
+        item.classList.toggle('completed', idx < step);
+      });
+      document.querySelectorAll('.section-toggle i').forEach((icon, idx) => {
+        icon.classList.toggle('fa-chevron-up', idx === step);
+        icon.classList.toggle('fa-chevron-down', idx !== step);
+      });
     }
 
     function toggleNewAddress() {
@@ -455,7 +535,7 @@
                 }
               },
               theme: {
-                color: '#0ea5e9'
+                color: '#ff6a00'
               }
             };
 
@@ -503,11 +583,15 @@
       const data = await response.json();
       if (!response.ok) {
         msg.textContent = data.error || 'Coupon not valid';
+        msg.classList.remove('ok');
+        msg.classList.add('err');
         return;
       }
 
       couponDiscount = parseFloat(data.discount || 0);
       msg.textContent = `Coupon applied. You saved ₹${couponDiscount.toFixed(2)}.`;
+      msg.classList.remove('err');
+      msg.classList.add('ok');
       document.getElementById('discountAmount').textContent = `-₹${couponDiscount.toFixed(2)}`;
       document.getElementById('totalAmount').textContent = `₹${parseFloat(data.final_total).toFixed(2)}`;
       cart.total = data.final_total;
@@ -515,4 +599,6 @@
   </script>
 </body>
 </html>
+
+
 
